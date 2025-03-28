@@ -1,8 +1,8 @@
-package com.laboratorio.facturas_productos.main;
+package com.laboratorio.facturas_productos;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 public class FacturasProductosApplication {
 

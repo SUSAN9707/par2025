@@ -1,1 +1,9 @@
+com\laboratorio\facturas_productos\repository\FacturaRepository.class
+com\laboratorio\facturas_productos\model\Producto.class
+com\laboratorio\facturas_productos\service\FacturaService.class
+com\laboratorio\facturas_productos\controller\ProductoController.class
+com\laboratorio\facturas_productos\controller\FacturaController.class
+com\laboratorio\facturas_productos\repository\ProductoRepository.class
 com\laboratorio\facturas_productos\FacturasProductosApplication.class
+com\laboratorio\facturas_productos\model\Factura.class
+com\laboratorio\facturas_productos\service\ProductoService.class

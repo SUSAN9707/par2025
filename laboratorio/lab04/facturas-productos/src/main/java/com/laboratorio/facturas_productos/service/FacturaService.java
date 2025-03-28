@@ -1,7 +1,7 @@
-package com.laboratorio.facturas_productos.main.service;
+package com.laboratorio.facturas_productos.service;
 
-import com.laboratorio.facturas_productos.main.model.Factura;
-import com.laboratorio.facturas_productos.main.repository.FacturaRepository;
+import com.laboratorio.facturas_productos.model.Factura;
+import com.laboratorio.facturas_productos.repository.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

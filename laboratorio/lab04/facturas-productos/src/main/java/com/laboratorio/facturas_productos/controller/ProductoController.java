@@ -1,7 +1,7 @@
-package com.laboratorio.facturas_productos.main.controller;
+package com.laboratorio.facturas_productos.controller;
 
-import com.laboratorio.facturas_productos.main.model.Producto;
-import com.laboratorio.facturas_productos.main.service.ProductoService;
+import com.laboratorio.facturas_productos.model.Producto;
+import com.laboratorio.facturas_productos.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/productos")
+@RequestMapping("/v1/productos")
 public class ProductoController {
 
     @Autowired

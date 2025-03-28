@@ -1,4 +1,4 @@
-package com.laboratorio.facturas_productos.main.model;
+package com.laboratorio.facturas_productos.model;
 
 import jakarta.persistence.*;
 
