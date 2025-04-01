@@ -1,7 +1,7 @@
-package com.laboratorio.facturas_productos.service;
+package com.trabajo_practico.gestion_comercial.service;
 
-import com.laboratorio.facturas_productos.model.Producto;
-import com.laboratorio.facturas_productos.repository.ProductoRepository;
+import com.trabajo_practico.gestion_comercial.model.Producto;
+import com.trabajo_practico.gestion_comercial.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
