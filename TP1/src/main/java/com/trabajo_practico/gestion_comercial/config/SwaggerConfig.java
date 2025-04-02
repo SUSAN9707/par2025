@@ -9,16 +9,18 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("API Gestión Comercial").version("1.0"))
-                .addSecurityItem(new SecurityRequirement().addList("BearerAuth"))
+                .info(new Info()
+                        .title("API Gestión Comercial")
+                        .version("1.0")
+                        .description("Documentación de la API para la gestión comercial"))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new io.swagger.v3.oas.models.Components()
-                        .addSecuritySchemes("BearerAuth",
+                        .addSecuritySchemes("Bearer Authentication",
                                 new SecurityScheme()
-                                        .name("BearerAuth")
+                                        .name("Bearer Authentication")
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")));
