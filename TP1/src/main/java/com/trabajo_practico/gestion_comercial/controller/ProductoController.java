@@ -1,7 +1,13 @@
 package com.trabajo_practico.gestion_comercial.controller;
+
 import com.trabajo_practico.gestion_comercial.model.Producto;
 import com.trabajo_practico.gestion_comercial.service.ProductoService;
+import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
+import com.trabajo_practico.gestion_comercial.exception.ResourceNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,27 +21,40 @@ public class ProductoController {
     private ProductoService productoService;
 
     @GetMapping
-    public List<Producto> getAllProductos() {
-        return productoService.getAllProductos();
+    public ResponseEntity<ApiResponse<List<Producto>>> getAllProductos() {
+        List<Producto> productos = productoService.getAllProductos();
+        return ResponseEntity.ok(new ApiResponse<>("Productos obtenidos correctamente", HttpStatus.OK.value(), productos));
     }
 
     @GetMapping("/{id}")
-    public Optional<Producto> getProductoById(@PathVariable Long id) {
-        return productoService.getProductoById(id);
+    public ResponseEntity<ApiResponse<Producto>> getProductoById(@PathVariable Long id) {
+        Optional<Producto> producto = productoService.getProductoById(id);
+        return producto
+                .map(p -> ResponseEntity.ok(new ApiResponse<>("Producto encontrado", HttpStatus.OK.value(), p)))
+                .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + id + " no encontrado"));
     }
 
     @PostMapping
-    public Producto createProducto(@RequestBody Producto producto) {
-        return productoService.createProducto(producto);
+    public ResponseEntity<ApiResponse<Producto>> createProducto(@RequestBody Producto producto) {
+        Producto nuevoProducto = productoService.createProducto(producto);
+        return ResponseEntity.ok(new ApiResponse<>("Producto creado exitosamente", HttpStatus.OK.value(), nuevoProducto));
     }
 
     @PutMapping("/{id}")
-    public Producto updateProducto(@PathVariable Long id, @RequestBody Producto producto) {
-        return productoService.updateProducto(id, producto);
+    public ResponseEntity<ApiResponse<Producto>> updateProducto(@PathVariable Long id, @RequestBody Producto productoActualizado) {
+        Producto producto = productoService.updateProducto(id, productoActualizado);
+        if (producto == null) {
+            throw new ResourceNotFoundException("Producto con ID " + id + " no encontrado");
+        }
+        return ResponseEntity.ok(new ApiResponse<>("Producto actualizado correctamente", HttpStatus.OK.value(), producto));
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteProducto(@PathVariable Long id) {
-        return productoService.deleteProducto(id);
+    public ResponseEntity<ApiResponse<Void>> deleteProducto(@PathVariable Long id) {
+        boolean eliminado = productoService.deleteProducto(id);
+        if (!eliminado) {
+            throw new ResourceNotFoundException("Producto con ID " + id + " no encontrado");
+        }
+        return ResponseEntity.ok(new ApiResponse<>("Producto eliminado correctamente", HttpStatus.OK.value(), null));
     }
 }

@@ -1,41 +1,26 @@
-package com.trabajo_practico.gestion_comercial.model;
+package com.trabajo_practico.gestion_comercial.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import com.trabajo_practico.gestion_comercial.model.Reporte;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
-@Entity
-public class Reporte {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ReporteDTO {
+    public ReporteDTO(Reporte reporte) {
+        setId(reporte.getId());
+        setDescripcion(reporte.getDescripcion());
+        setFechaHasta(reporte.getFechaHasta());
+        setFechaDesde(reporte.getFechaDesde());
+        setIdProductos(reporte.getIdProductos());
+        setTipoReporte(reporte.getTipoReporte());
+        setMontoTotal(reporte.getMontoTotal());
+    }
     private Long id;
-
     private Double montoTotal;
     private String descripcion;
     private String idProductos;
-
-    public String getTipoReporte() {
-        return tipoReporte;
-    }
-
-    public void setTipoReporte(String tipoReporte) {
-        this.tipoReporte = tipoReporte;
-    }
-
     private String tipoReporte;
-
-    private Date fechaGeneracion =new Date();
     private Date fechaDesde;
     private Date fechaHasta;
-
-    @ManyToOne
-    @JoinColumn(name = "usuario_id")
-    private Usuario usuario;
-
-
 
     public Long getId() {
         return id;
@@ -44,7 +29,6 @@ public class Reporte {
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getDescripcion() {
         return descripcion;
     }
@@ -83,5 +67,13 @@ public class Reporte {
 
     public void setFechaHasta(Date fechaHasta) {
         this.fechaHasta = fechaHasta;
+    }
+
+    public String getTipoReporte() {
+        return tipoReporte;
+    }
+
+    public void setTipoReporte(String tipoReporte) {
+        this.tipoReporte = tipoReporte;
     }
 }
