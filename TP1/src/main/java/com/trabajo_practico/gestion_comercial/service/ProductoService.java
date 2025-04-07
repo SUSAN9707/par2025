@@ -1,45 +1,60 @@
 package com.trabajo_practico.gestion_comercial.service;
 
+import com.trabajo_practico.gestion_comercial.dto.CreateUpdateProductoDTO;
+import com.trabajo_practico.gestion_comercial.dto.ProductoDTO;
 import com.trabajo_practico.gestion_comercial.model.Producto;
 import com.trabajo_practico.gestion_comercial.repository.ProductoRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductoService {
 
-    @Autowired
-    private ProductoRepository productoRepository;
+    private final ProductoRepository productoRepository;
 
-    public List<Producto> getAllProductos() {
-        return productoRepository.findAll();
+    public ProductoService(ProductoRepository productoRepository) {
+        this.productoRepository = productoRepository;
     }
 
-    public Optional<Producto> getProductoById(Long id) {
-        return productoRepository.findById(id);
+    public ProductoDTO crearProducto(CreateUpdateProductoDTO createUpdateProductoDTO) {
+        var producto = generateProducto(createUpdateProductoDTO);
+        return new ProductoDTO(productoRepository.save(producto));
     }
 
-    public Producto createProducto(Producto producto) {
-        return productoRepository.save(producto);
+    public List<ProductoDTO> obtenerTodos() {
+        return productoRepository.findAll().stream().map(ProductoDTO::new).collect(Collectors.toList());
     }
 
-    public Producto updateProducto(Long id, Producto producto) {
+    public Optional<ProductoDTO> obtenerPorId(Long id) {
+        var producto = productoRepository.findById(id);
+        return producto.map(ProductoDTO::new);
+    }
+
+    public ProductoDTO actualizarProducto(Long id, CreateUpdateProductoDTO updateProductoDTO) {
+        var producto = generateProducto(updateProductoDTO);
         if (productoRepository.existsById(id)) {
             producto.setId(id);
-            return productoRepository.save(producto);
+            return new ProductoDTO(productoRepository.save(producto));
         }
         return null;
     }
 
-    public boolean deleteProducto(Long id) {
+    public boolean eliminarProducto(Long id) {
         if (productoRepository.existsById(id)) {
             productoRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+    private Producto generateProducto(CreateUpdateProductoDTO updateProductoDTO) {
+        var producto = new Producto();
+        producto.setNombre(updateProductoDTO.getNombre());
+        producto.setPrecio(updateProductoDTO.getPrecio());
+        producto.setDescripcion(updateProductoDTO.getDescripcion());
+        return producto;
     }
 }
 

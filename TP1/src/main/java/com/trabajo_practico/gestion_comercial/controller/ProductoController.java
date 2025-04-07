@@ -1,11 +1,12 @@
 package com.trabajo_practico.gestion_comercial.controller;
 
-import com.trabajo_practico.gestion_comercial.model.Producto;
+import com.trabajo_practico.gestion_comercial.dto.CreateUpdateProductoDTO;
+import com.trabajo_practico.gestion_comercial.dto.ProductoDTO;
+
 import com.trabajo_practico.gestion_comercial.service.ProductoService;
 import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
 import com.trabajo_practico.gestion_comercial.exception.ResourceNotFoundException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,32 +18,35 @@ import java.util.Optional;
 @RequestMapping("/${api.version}/productos")
 public class ProductoController {
 
-    @Autowired
-    private ProductoService productoService;
+    private final ProductoService productoService;
+
+    public ProductoController(ProductoService productoService) {
+        this.productoService = productoService;
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<ProductoDTO>> crearProducto(@RequestBody CreateUpdateProductoDTO producto) {
+        var nuevoProducto = productoService.crearProducto(producto);
+        return ResponseEntity.ok(new ApiResponse<>("Producto creado exitosamente", HttpStatus.OK.value(), nuevoProducto));
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Producto>>> getAllProductos() {
-        List<Producto> productos = productoService.getAllProductos();
+    public ResponseEntity<ApiResponse<List<ProductoDTO>>> obtenerTodos() {
+        var productos = productoService.obtenerTodos();
         return ResponseEntity.ok(new ApiResponse<>("Productos obtenidos correctamente", HttpStatus.OK.value(), productos));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Producto>> getProductoById(@PathVariable Long id) {
-        Optional<Producto> producto = productoService.getProductoById(id);
+    public ResponseEntity<ApiResponse<ProductoDTO>> obtenerPorId(@PathVariable Long id) {
+        Optional<ProductoDTO> producto = productoService.obtenerPorId(id);
         return producto
                 .map(p -> ResponseEntity.ok(new ApiResponse<>("Producto encontrado", HttpStatus.OK.value(), p)))
                 .orElseThrow(() -> new ResourceNotFoundException("Producto con ID " + id + " no encontrado"));
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Producto>> createProducto(@RequestBody Producto producto) {
-        Producto nuevoProducto = productoService.createProducto(producto);
-        return ResponseEntity.ok(new ApiResponse<>("Producto creado exitosamente", HttpStatus.OK.value(), nuevoProducto));
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Producto>> updateProducto(@PathVariable Long id, @RequestBody Producto productoActualizado) {
-        Producto producto = productoService.updateProducto(id, productoActualizado);
+    public ResponseEntity<ApiResponse<ProductoDTO>> actualizarProducto(@PathVariable Long id, @RequestBody CreateUpdateProductoDTO productoActualizado) {
+        var producto = productoService.actualizarProducto(id, productoActualizado);
         if (producto == null) {
             throw new ResourceNotFoundException("Producto con ID " + id + " no encontrado");
         }
@@ -50,8 +54,8 @@ public class ProductoController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteProducto(@PathVariable Long id) {
-        boolean eliminado = productoService.deleteProducto(id);
+    public ResponseEntity<ApiResponse<Void>> eliminarProducto(@PathVariable Long id) {
+        boolean eliminado = productoService.eliminarProducto(id);
         if (!eliminado) {
             throw new ResourceNotFoundException("Producto con ID " + id + " no encontrado");
         }

@@ -1,6 +1,7 @@
 package com.trabajo_practico.gestion_comercial.controller;
 
-import com.trabajo_practico.gestion_comercial.model.Factura;
+import com.trabajo_practico.gestion_comercial.dto.CreateUpdateFacturaDTO;
+import com.trabajo_practico.gestion_comercial.dto.FacturaDTO;
 import com.trabajo_practico.gestion_comercial.service.FacturaService;
 import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
 import com.trabajo_practico.gestion_comercial.exception.ResourceNotFoundException;
@@ -17,43 +18,47 @@ import java.util.Optional;
 public class FacturaController {
 
     @Autowired
-    private FacturaService facturaService;
+    private final FacturaService facturaService;
+
+    public FacturaController(FacturaService facturaService) {
+        this.facturaService = facturaService;
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<FacturaDTO>> crearFactura(@RequestBody CreateUpdateFacturaDTO factura) {
+        var nuevaFactura = facturaService.crearFactura(factura);
+        return ResponseEntity.ok(new ApiResponse<>("Factura creada exitosamente", HttpStatus.OK.value(), nuevaFactura));
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Factura>>> getAllFacturas() {
-        List<Factura> facturas = facturaService.getAllFacturas();
+    public ResponseEntity<ApiResponse<List<FacturaDTO>>> obtenerTodas() {
+        var facturas = facturaService.obtenerTodas();
         return ResponseEntity.ok(new ApiResponse<>("Facturas obtenidas correctamente", HttpStatus.OK.value(), facturas));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Factura>> getFacturaById(@PathVariable Long id) {
-        Optional<Factura> factura = facturaService.getFacturaById(id);
+    public ResponseEntity<ApiResponse<FacturaDTO>> obtenerPorId(@PathVariable Long id) {
+        Optional<FacturaDTO> factura = facturaService.obtenerPorId(id);
         return factura
                 .map(f -> ResponseEntity.ok(new ApiResponse<>("Factura encontrada", HttpStatus.OK.value(), f)))
                 .orElseThrow(() -> new ResourceNotFoundException("Factura con ID " + id + " no encontrada"));
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Factura>> createFactura(@RequestBody Factura factura) {
-        Factura nueva = facturaService.createFactura(factura);
-        return new ResponseEntity<>(new ApiResponse<>("Factura creada correctamente", HttpStatus.OK.value(), nueva), HttpStatus.OK);
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Factura>> updateFactura(@PathVariable Long id, @RequestBody Factura factura) {
-        Factura actualizada = facturaService.updateFactura(id, factura);
-        if (actualizada == null) {
+    public ResponseEntity<ApiResponse<FacturaDTO>> actualizarFactura(@PathVariable Long id, @RequestBody CreateUpdateFacturaDTO facturaActualizada) {
+        var factura = facturaService.actualizarFactura(id, facturaActualizada);
+        if (factura == null) {
             throw new ResourceNotFoundException("Factura con ID " + id + " no encontrada");
         }
-        return ResponseEntity.ok(new ApiResponse<>("Factura actualizada", HttpStatus.OK.value(), actualizada));
+        return ResponseEntity.ok(new ApiResponse<>("Factura actualizada correctamente", HttpStatus.OK.value(), factura));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteFactura(@PathVariable Long id) {
-        boolean eliminado = facturaService.deleteFactura(id);
-        if (!eliminado) {
+    public ResponseEntity<ApiResponse<Void>> eliminarFactura(@PathVariable Long id) {
+        boolean eliminada = facturaService.eliminarFactura(id);
+        if (!eliminada) {
             throw new ResourceNotFoundException("Factura con ID " + id + " no encontrada");
         }
-        return ResponseEntity.ok(new ApiResponse<>("Factura eliminada", HttpStatus.OK.value(), null));
+        return ResponseEntity.ok(new ApiResponse<>("Factura eliminada correctamente", HttpStatus.OK.value(), null));
     }
 }

@@ -1,38 +1,33 @@
-package com.trabajo_practico.gestion_comercial.model;
+package com.trabajo_practico.gestion_comercial.dto;
 
-import jakarta.persistence.*;
+import com.trabajo_practico.gestion_comercial.model.Proveedor;
 
-@Entity
-@Table(name = "proveedores")
-public class Proveedor {
+public class ProveedorDTO {
+    public Long getId() {
+        return id;
+    }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public ProveedorDTO(Proveedor proveedor) {
+        setId(proveedor.getId());
+        setNombre(proveedor.getNombre());
+        setRuc(proveedor.getRuc());
+        setTelefono(proveedor.getTelefono());
+        setEmail(proveedor.getEmail());
+        setDireccion(proveedor.getDireccion());
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     private Long id;
-
-
     private String nombre;
-
 
     private String ruc;
 
     private String telefono;
     private String email;
     private String direccion;
-
-    public Proveedor() {}
-
-    public Proveedor(String nombre, String ruc, String telefono, String email, String direccion) {
-        this.nombre = nombre;
-        this.ruc = ruc;
-        this.telefono = telefono;
-        this.email = email;
-        this.direccion = direccion;
-    }
-
-    // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }

@@ -1,6 +1,7 @@
 package com.trabajo_practico.gestion_comercial.controller;
 
-import com.trabajo_practico.gestion_comercial.model.Proveedor;
+import com.trabajo_practico.gestion_comercial.dto.CreateUpdateProveedorDTO;
+import com.trabajo_practico.gestion_comercial.dto.ProveedorDTO;
 import com.trabajo_practico.gestion_comercial.service.ProveedorService;
 import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
 import com.trabajo_practico.gestion_comercial.exception.ResourceNotFoundException;
@@ -17,32 +18,37 @@ import java.util.Optional;
 @RequestMapping("/${api.version}/proveedores")
 public class ProveedorController {
 
+
     @Autowired
-    private ProveedorService proveedorService;
+    private final ProveedorService proveedorService;
+
+    public ProveedorController(ProveedorService proveedorService) {
+        this.proveedorService = proveedorService;
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<ProveedorDTO>> crearProveedor(@RequestBody CreateUpdateProveedorDTO proveedor) {
+        var nuevoProveedor = proveedorService.crearProveedor(proveedor);
+        return ResponseEntity.ok(new ApiResponse<>("Proveedor creado exitosamente", HttpStatus.OK.value(), nuevoProveedor));
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Proveedor>>> obtenerProveedores() {
-        List<Proveedor> proveedores = proveedorService.listarProveedores();
+    public ResponseEntity<ApiResponse<List<ProveedorDTO>>> obtenerTodos() {
+        var proveedores = proveedorService.obtenerTodos();
         return ResponseEntity.ok(new ApiResponse<>("Proveedores obtenidos correctamente", HttpStatus.OK.value(), proveedores));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Proveedor>> obtenerProveedorPorId(@PathVariable Long id) {
-        Optional<Proveedor> proveedor = proveedorService.obtenerProveedorPorId(id);
+    public ResponseEntity<ApiResponse<ProveedorDTO>> obtenerPorId(@PathVariable Long id) {
+        Optional<ProveedorDTO> proveedor = proveedorService.obtenerPorId(id);
         return proveedor
                 .map(p -> ResponseEntity.ok(new ApiResponse<>("Proveedor encontrado", HttpStatus.OK.value(), p)))
                 .orElseThrow(() -> new ResourceNotFoundException("Proveedor con ID " + id + " no encontrado"));
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Proveedor>> crearProveedor(@RequestBody Proveedor proveedor) {
-        Proveedor nuevoProveedor = proveedorService.crearProveedor(proveedor);
-        return ResponseEntity.ok(new ApiResponse<>("Proveedor creado exitosamente", HttpStatus.OK.value(), nuevoProveedor));
-    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Proveedor>> actualizarProveedor(@PathVariable Long id, @RequestBody Proveedor proveedorActualizado) {
-        Proveedor proveedor = proveedorService.actualizarProveedor(id, proveedorActualizado);
+    public ResponseEntity<ApiResponse<ProveedorDTO>> actualizarProveedor(@PathVariable Long id, @RequestBody CreateUpdateProveedorDTO proveedorActualizado) {
+        var proveedor = proveedorService.actualizarProveedor(id, proveedorActualizado);
         if (proveedor == null) {
             throw new ResourceNotFoundException("Proveedor con ID " + id + " no encontrado");
         }
