@@ -13,6 +13,16 @@ public class Producto {
     private double precio;
     private String descripcion;
 
+    public int getStock() {
+        return stock_actual;
+    }
+
+    public void setStock(int stock_actual) {
+        this.stock_actual = stock_actual;
+    }
+
+    private int stock_actual;
+
     // Getters y setters
     public Long getId() {
         return id;

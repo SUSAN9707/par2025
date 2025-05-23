@@ -8,11 +8,14 @@ public class ProductoDTO {
         setNombre(producto.getNombre());
         setPrecio(producto.getPrecio());
         setDescripcion(producto.getDescripcion());
+        setStock(producto.getStock());
     }
+
     private Long id;
     private String nombre;
     private double precio;
     private String descripcion;
+    private Integer stock;   // <-- nuevo campo
 
     // Getters y setters
     public Long getId() {
@@ -45,5 +48,13 @@ public class ProductoDTO {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 }
