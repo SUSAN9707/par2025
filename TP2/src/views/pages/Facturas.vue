@@ -141,13 +141,13 @@ function createId() {
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="numero" class="block font-bold mb-3">Número</label>
-                    <InputText id="numero" v-model.trim="factura.numero" autofocus :invalid="submitted && !factura.numero" />
+                    <InputText id="numero" class="w-full" v-model.trim="factura.numero" autofocus :invalid="submitted && !factura.numero" />
                     <small v-if="submitted && !factura.numero" class="text-red-500">El número es obligatorio.</small>
                 </div>
 
                 <div>
                     <label for="cliente" class="block font-bold mb-3">Cliente</label>
-                    <InputText id="cliente" v-model="factura.cliente" />
+                    <InputText id="cliente" class="w-full" v-model="factura.cliente" />
                 </div>
 
                 <div>
@@ -155,6 +155,7 @@ function createId() {
                     <InputNumber
                         id="total"
                         v-model="factura.total"
+                        class="w-full"
                         mode="currency"
                         currency="PYG"
                         locale="es-PY"
