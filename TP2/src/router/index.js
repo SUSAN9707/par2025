@@ -150,6 +150,12 @@ const router = createRouter({
                     meta: { requiresAuth: true }
                 },
                 {
+                    path: '/pages/ventas',
+                    name: 'Ventas',
+                    component: () => import('@/views/pages/Ventas.vue'),
+                    meta: { requiresAuth: true }
+                },
+                {
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/pages/Documentation.vue'),

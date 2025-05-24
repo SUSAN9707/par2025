@@ -78,7 +78,13 @@ const model = ref([
                 label: 'Facturas',
                 icon: 'pi pi-dollar',
                 to: '/pages/facturas'
-            },{
+            },
+            {
+                label: 'Ventas',
+                icon: 'pi pi-wallet',
+                to: '/pages/ventas'
+            },
+            {
                 label: 'Reportes',
                 icon: 'pi pi-chart-bar',
                 to: '/pages/reportes'
