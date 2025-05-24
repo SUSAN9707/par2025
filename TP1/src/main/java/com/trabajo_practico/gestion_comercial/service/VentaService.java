@@ -66,7 +66,7 @@ public class VentaService {
 
         // Generar nueva venta desde DTO
         Venta nuevaVenta = generateVenta(dto);
-
+        nuevaVenta.setFecha(LocalDateTime.now());
         // Validar stock del nuevo producto
         Producto nuevoProducto = nuevaVenta.getProducto();
         if (nuevoProducto.getStock() < nuevaVenta.getCantidad()) {
