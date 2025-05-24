@@ -156,6 +156,12 @@ const router = createRouter({
                     meta: { requiresAuth: true }
                 },
                 {
+                    path: '/pages/compras',
+                    name: 'Compras',
+                    component: () => import('@/views/pages/Compras.vue'),
+                    meta: { requiresAuth: true }
+                },
+                {
                     path: '/documentation',
                     name: 'documentation',
                     component: () => import('@/views/pages/Documentation.vue'),

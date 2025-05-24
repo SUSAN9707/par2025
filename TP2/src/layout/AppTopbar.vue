@@ -1,7 +1,16 @@
 <script setup>
 import { useLayout } from '@/layout/composables/layout';
 import AppConfigurator from './AppConfigurator.vue';
-
+import {onMounted, ref} from "vue";
+import router from "@/router";
+const username = ref('')
+onMounted(() => {
+    username.value = localStorage.getItem('username') || 'Perfil'
+})
+function logout() {
+    localStorage.clear()
+    router.push('/')
+}
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 </script>
 
@@ -30,7 +39,7 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
                     </g>
                 </svg>
 
-                <span>SAKAI</span>
+                <span>FINBOX</span>
             </router-link>
         </div>
 
@@ -60,17 +69,14 @@ const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout();
 
             <div class="layout-topbar-menu hidden lg:block">
                 <div class="layout-topbar-menu-content">
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-calendar"></i>
-                        <span>Calendar</span>
-                    </button>
-                    <button type="button" class="layout-topbar-action">
-                        <i class="pi pi-inbox"></i>
-                        <span>Messages</span>
-                    </button>
+
                     <button type="button" class="layout-topbar-action">
                         <i class="pi pi-user"></i>
-                        <span>Profile</span>
+                        <span>{{ username }}</span>
+                    </button>
+                    <button type="button" class="layout-topbar-action" @click="logout">
+                        <i class="pi pi-sign-out"></i>
+                        <span>Salir</span>
                     </button>
                 </div>
             </div>

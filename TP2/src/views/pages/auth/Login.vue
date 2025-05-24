@@ -18,12 +18,11 @@ async function handleLogin() {
     try {
         const token = await login(email.value, password.value)
         console.log('Login exitoso. Token:', token)
+        localStorage.setItem('username',email.value)
 
-        // Redirigir a otra ruta si querés
-        await router.push('/dashboard') // Cambia '/dashboard' por la ruta deseada
+        await router.push('/dashboard')
     } catch (error) {
         console.error('Error al iniciar sesión:', error)
-        //errorMessage.value = 'Usuario o contraseña incorrectos'
         toast.add({
             severity: 'error',
             summary: 'Error',
@@ -67,8 +66,8 @@ async function handleLogin() {
                     </div>
 
                     <div>
-                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Correo</label>
-                        <InputText id="email1" type="text" placeholder="Correo electrónico" class="w-full md:w-[30rem] mb-8" v-model="email" />
+                        <label for="email1" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Usuario</label>
+                        <InputText id="email1" type="text" placeholder="Correo electrónico o usuario" class="w-full md:w-[30rem] mb-8" v-model="email" />
 
                         <label for="password1" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Contraseña</label>
                         <Password id="password1" v-model="password" placeholder="Contraseña" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
