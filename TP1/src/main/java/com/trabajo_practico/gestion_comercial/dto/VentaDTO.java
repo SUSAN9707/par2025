@@ -17,7 +17,15 @@ public class VentaDTO {
     private LocalDateTime fecha;
     private Integer cantidad;
     private Long productoId;
+    public Double getMontoTotal() {
+        return montoTotal;
+    }
 
+    public void setMontoTotal(Double montoTotal) {
+        this.montoTotal = montoTotal;
+    }
+
+    private Double montoTotal;
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

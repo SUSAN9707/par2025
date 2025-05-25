@@ -1,5 +1,6 @@
 package com.trabajo_practico.gestion_comercial.dto;
 
+import com.trabajo_practico.gestion_comercial.model.EstadoFactura;
 import com.trabajo_practico.gestion_comercial.model.Factura;
 
 public class FacturaDTO {
@@ -8,21 +9,41 @@ public class FacturaDTO {
         setNumero(factura.getNumero());
         setCliente(factura.getCliente());
         setTotal(factura.getTotal());
+        setidClienteProv(factura.getidClienteProv());
     }
     private Long id;
     private String numero;
     private String cliente;
     private double total;
+    private EstadoFactura estado;
 
-    public int getIdCliente() {
-        return idCliente;
+    public EstadoFactura getEstado() {
+        return estado;
     }
 
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
+    public void setEstado(EstadoFactura estado) {
+        this.estado = estado;
     }
 
-    private int idCliente;
+    public long getidClienteProv() {
+        return idClienteProv;
+    }
+
+    public String getTipoFactura() {
+        return tipoFactura;
+    }
+
+    public void setTipoFactura(String tipoFactura) {
+        this.tipoFactura = tipoFactura;
+    }
+
+    private String tipoFactura;
+    public void setidClienteProv(long idClienteProv) {
+        this.idClienteProv = idClienteProv;
+    }
+
+    private long idClienteProv;
+
 
     // Getters y setters
     public Long getId() {

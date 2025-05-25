@@ -1,6 +1,7 @@
 package com.trabajo_practico.gestion_comercial.dto;
 
 
+import java.util.List;
 
 public class CreateUpdateFacturaDTO {
 
@@ -8,15 +9,35 @@ public class CreateUpdateFacturaDTO {
     private String cliente;
     private double total;
 
-    public int getIdCliente() {
-        return idCliente;
+    public List<Long> getReferencias() {
+        return referencias;
     }
 
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
+    public void setReferencias(List<Long> referencias) {
+        this.referencias = referencias;
     }
 
-    private int idCliente;
+    private List<Long> referencias;
+    public long getidClienteProv() {
+        return idClienteProv;
+    }
+
+    public String getTipoFactura() {
+        return tipoFactura;
+    }
+
+    public void setTipoFactura(String tipoFactura) {
+        this.tipoFactura = tipoFactura;
+    }
+
+    private String tipoFactura;
+    public void setidClienteProv(long idClienteProv) {
+        this.idClienteProv = idClienteProv;
+    }
+
+    private long idClienteProv;
+
+
     public String getNumero() {
         return numero;
     }

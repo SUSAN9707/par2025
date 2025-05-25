@@ -13,15 +13,36 @@ public class Factura {
     private String cliente;
     private double total;
 
-    public int getIdCliente() {
-        return idCliente;
+    public EstadoFactura getEstado() {
+        return estado;
     }
 
-    public void setIdCliente(int idCliente) {
-        this.idCliente = idCliente;
+    public void setEstado(EstadoFactura estado) {
+        this.estado = estado;
     }
 
-    private int idCliente;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private EstadoFactura estado = EstadoFactura.VIGENTE;
+
+    public long getidClienteProv() {
+        return idClienteProv;
+    }
+
+    public String getTipoFactura() {
+        return tipoFactura;
+    }
+
+    public void setTipoFactura(String tipoFactura) {
+        this.tipoFactura = tipoFactura;
+    }
+
+    private String tipoFactura;
+    public void setidClienteProv(long idClienteProv) {
+        this.idClienteProv = idClienteProv;
+    }
+
+    private long idClienteProv;
 
     // Getters y setters
     public Long getId() {

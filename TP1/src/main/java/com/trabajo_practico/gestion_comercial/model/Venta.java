@@ -19,6 +19,15 @@ public class Venta {
 
     private LocalDateTime fecha;
 
+    public Double getMontoTotal() {
+        return montoTotal;
+    }
+
+    public void setMontoTotal(Double montoTotal) {
+        this.montoTotal = montoTotal;
+    }
+
+    private Double montoTotal;
     public Venta() {}
 
     public Venta(Producto producto, int cantidad, LocalDateTime fecha) {
