@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import { ProductService } from '@/service/ProductService'; // puedes cambiarlo por ReportService cuando tengas la API
 
 const toast = useToast();
 const dt = ref();
@@ -35,7 +34,7 @@ const reportes = ref([
 
 onMounted(() => {
     // Aquí puedes llamar a tu API cuando la integres
-    ProductService.getProducts().then((data) => (reports.value = data)); // cambia esto por ReportService
+
 });
 
 function openNew() {
