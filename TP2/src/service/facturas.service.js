@@ -25,3 +25,7 @@ export function actualizarFactura(id, facturaActualizada) {
 export function eliminarFactura(id) {
     return api.delete(`/facturas/${id}`)
 }
+
+export function anularFactura(id) {
+    return api.delete(`/facturas/${id}/anular`)
+}

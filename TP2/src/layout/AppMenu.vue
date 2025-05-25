@@ -28,11 +28,11 @@ const model = ref([
                 icon: 'pi pi-truck',
                 to: '/pages/proveedores'
             },
-            {
+           /* {EN DESARROLLO
                 label: 'Facturas',
                 icon: 'pi pi-dollar',
                 to: '/pages/facturas'
-            },
+            },*/
             {
                 label: 'Ventas',
                 icon: 'pi pi-wallet',

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import {ref, onMounted, computed, watch} from 'vue'
 import { useToast } from 'primevue/usetoast'
 import {
     getVentas,
@@ -7,15 +7,19 @@ import {
     actualizarVenta,
     eliminarVenta
 } from '@/service/venta.service'
+import {getProductos} from "@/service/producto.service";
 
 const dt = ref()
 const submitted = ref(false)
 const ventas = ref([])
+const productos = ref([])
+const productoSeleccionado = ref(null);
 
 const venta = ref({
     id: null,
     productoId: '',
     cantidad: 1,
+    monto:0
 })
 
 const toast = useToast()
@@ -51,15 +55,32 @@ function openNew() {
     venta.value = {
         id: null,
         productoId: '',
-        cantidad: 1
+        cantidad: 1,
+        monto:0
     }
     submitted.value = false
+    cargarProductos()
     ventaDialog.value = true
 }
-
+async function cargarProductos() {
+    try {
+        const response = await getProductos();
+        productos.value = response.data.data; // lista de clientes
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.mensaje || 'Error al cargar productos',
+            life: 3000
+        });
+        ventaDialog.value=false
+    }
+}
 function editVenta(ven) {
     venta.value = { ...ven }
+    cargarProductos()
     ventaDialog.value = true
+
 }
 
 function confirmDeleteVenta(ven) {
@@ -78,7 +99,8 @@ function deleteVenta() {
                 life: 3000
             })
             cargarVentas()
-            venta.value = { id: null, productoId: '', cantidad: 1 }
+            venta.value = { id: null, productoId: '', cantidad: 1,
+                monto:0 }
         })
         .catch(error => {
             toast.add({
@@ -148,9 +170,26 @@ function saveVenta() {
                 })
         }
         ventaDialog.value = false
-        venta.value = { id: null, productoId: '', cantidad: 1 }
+        venta.value = { id: null, productoId: '', cantidad: 1,
+            monto:0 }
     }
 }
+watch(
+    [productoSeleccionado, () => venta.value.cantidad],
+    ([nuevoProducto, nuevaCantidad]) => {
+        if (nuevoProducto && nuevaCantidad) {
+            console.log('1')
+            venta.value.monto = nuevoProducto.precio * nuevaCantidad;
+            console.log(venta.value.monto)
+        } else {
+            console.log('2')
+            venta.value.monto = 0;
+        }
+    }
+);
+
+
+
 </script>
 
 <template>
@@ -182,13 +221,50 @@ function saveVenta() {
         <Dialog v-model:visible="ventaDialog" header="Venta" modal :closable="false" :style="{ width: '450px' }">
             <div class="p-fluid">
                 <div class="field">
-                    <label for="productoId" class="block mb-2 font-bold">Producto ID:</label>
-                    <InputText id="productoId" v-model="venta.productoId" class="w-full" />
+                    <label for="idProducto" class="block mb-2 font-bold">Nombre Producto:</label>
+
+                    <Dropdown
+                        id="idProducto"
+                        v-model="productoSeleccionado"
+                        :options="productos"
+                        optionLabel="nombre"
+                        :optionValue="producto => producto"
+                        filter
+                        filterBy="nombre"
+                        placeholder="Seleccione un producto"
+                        class="w-full mb-2"
+                    />
+
+                    <div class="flex justify-end">
+                        <Button
+                            label="Limpiar"
+                            icon="pi pi-trash"
+                            iconPos="right"
+                            class="p-button-secondary"
+                            @click="productoSeleccionado = null"
+                            :disabled="!productoSeleccionado"
+                            title="Limpiar selección"
+                        />
+                    </div>
                 </div>
-                <div class="field">
+                <div class="field" v-if="productoSeleccionado">
                     <label for="cantidad" class="block mb-2 font-bold">Cantidad:</label>
                     <InputNumber id="cantidad" v-model="venta.cantidad" class="w-full" :min="1" />
                 </div>
+                <div class="field" v-if="productoSeleccionado">
+                    <label for="monto" class="block mb-2 font-bold">Monto total:</label>
+                    <InputNumber
+                        id="monto"
+                        v-model="venta.value.monto"
+                        class="w-full"
+                        prefix="Gs. "
+                        :minFractionDigits="0"
+                        :maxFractionDigits="0"
+                        :disabled="true"
+                    />
+
+                </div>
+
 
             </div>
 

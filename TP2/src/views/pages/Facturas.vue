@@ -1,101 +1,178 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useToast } from 'primevue/usetoast';
+import {ref, onMounted, computed, watch} from 'vue';
+
+import { useToast } from "primevue/usetoast";
+import {anularFactura, crearFactura, getFacturas} from "@/service/facturas.service";
+import {getClientes} from "@/service/cliente.service";
+
+const dt = ref();
+const submitted = ref(false);
+const facturas = ref([]);
+const clientes = ref([]);
+const clienteSeleccionado = ref(null);
+const factura = ref({
+    id: null,
+    numero: '',
+    total: null,
+    idClienteProv: null,  // cliente o proveedor según tipoFactura
+    tipoFactura: '',      // 'COMPRA' o 'VENTA'
+    estado: 'VIGENTE',     // estado inicial por defecto,
+    referencias:[]
+});
 
 const toast = useToast();
-const dt = ref();
-const facturas = ref([]);
+async function cargarClientes() {
+    try {
+        const response = await getClientes();
+        clientes.value = response.data.data; // lista de clientes
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.mensaje || 'Error al cargar clientes',
+            life: 3000
+        });
+        facturaDialog.value=false
+    }
+}
+async function cargarFacturas() {
+    try {
+        const response = await getFacturas();
+        facturas.value = response.data.data;
+        console.log(factura.value.numero)
+        toast.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: response.data.mensaje || 'Facturas cargadas',
+            life: 3000
+        });
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.mensaje || 'Error al cargar facturas',
+            life: 3000
+        });
+    }
+}
+
 const facturaDialog = ref(false);
 const deleteFacturaDialog = ref(false);
-const deleteFacturasDialog = ref(false);
-const factura = ref({ id: '', numero: '', cliente: '', total: 0 });
-const selectedFacturas = ref([]);
-const submitted = ref(false);
-
-// Datos de ejemplo
-const facturasEjemplo = ref([
-    { id: 1, numero: 'F001', cliente: 'Cliente A', total: 1500000 },
-    { id: 2, numero: 'F002', cliente: 'Cliente B', total: 750000 },
-    { id: 3, numero: 'F003', cliente: 'Cliente C', total: 275000 }
-]);
 
 onMounted(() => {
-    facturas.value = facturasEjemplo.value;
+    cargarFacturas();
 });
 
 function openNew() {
-    factura.value = { id: '', numero: '', cliente: '', total: 0 };
+    factura.value = { id: null,
+        numero: '',
+        total: null,
+        idClienteProv: null,  // cliente o proveedor según tipoFactura
+        tipoFactura: '',      // 'COMPRA' o 'VENTA'
+        estado: 'VIGENTE',
+        referencias:[]};
+    factura.value.numero = generarNumero();
+    clienteSeleccionado.value = null; // limpiar selección
     submitted.value = false;
     facturaDialog.value = true;
+    cargarClientes();
 }
+watch(clienteSeleccionado, (nuevo) => {
+    factura.value.idCliente = nuevo ? nuevo.id : null;
+});
 
-function hideDialog() {
-    facturaDialog.value = false;
-    submitted.value = false;
-}
 
-function saveFactura() {
-    submitted.value = true;
-
-    if (factura.value.numero && factura.value.numero.trim() !== '') {
-        if (factura.value.id) {
-            const index = facturas.value.findIndex(f => f.id === factura.value.id);
-            if (index !== -1) {
-                facturas.value[index] = { ...factura.value };
-                toast.add({ severity: 'success', summary: 'Éxito', detail: 'Factura actualizada', life: 3000 });
-            }
-        } else {
-            factura.value.id = createId();
-            facturas.value.push({ ...factura.value });
-            toast.add({ severity: 'success', summary: 'Éxito', detail: 'Factura creada', life: 3000 });
-        }
-        facturaDialog.value = false;
-        factura.value = { id: '', numero: '', cliente: '', total: 0 };
-    } else {
-        toast.add({ severity: 'error', summary: 'Error', detail: 'El número es obligatorio', life: 3000 });
-    }
-}
-
-function editFactura(fact) {
-    factura.value = { ...fact };
-    facturaDialog.value = true;
-}
-
-function confirmDeleteFactura(fact) {
-    factura.value = { ...fact };
+function anular(fac) {
+    factura.value = { ...fac };
     deleteFacturaDialog.value = true;
 }
 
-function deleteFactura() {
-    facturas.value = facturas.value.filter(f => f.id !== factura.value.id);
-    deleteFacturaDialog.value = false;
-    factura.value = { id: '', numero: '', cliente: '', total: 0 };
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Factura eliminada', life: 3000 });
+function confirmarAnular() {
+    anularFactura(factura.value.id)
+        .then(response => {
+            deleteFacturaDialog.value = false;
+            toast.add({
+                severity: 'success',
+                summary: 'Éxito',
+                detail: response.data.mensaje,
+                life: 3000
+            });
+            cargarFacturas();
+            factura.value = { id: null, numero: '', total: null, idCliente: null };
+        })
+        .catch(error => {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: error.response?.data?.mensaje || 'Error al anular factura',
+                life: 3000
+            });
+        });
 }
 
-function confirmDeleteSelected() {
-    deleteFacturasDialog.value = true;
-}
-
-function deleteSelectedFacturas() {
-    facturas.value = facturas.value.filter(f => !selectedFacturas.value.includes(f));
-    deleteFacturasDialog.value = false;
-    selectedFacturas.value = [];
-    toast.add({ severity: 'success', summary: 'Éxito', detail: 'Facturas eliminadas', life: 3000 });
-}
-
-function formatoGs(valor) {
-    if (valor == null) return '';
-    return 'Gs. ' + valor.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-function createId() {
-    let id = '';
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
+const isFormInvalid = computed(() => {
+    return !factura.value.numero.trim() ||
+        factura.value.total === null || factura.value.total <= 0 ||
+        factura.value.idCliente === null||clienteSeleccionado.value===null;
+});
+function generarNumero(){
+    if (facturas.value.length === 0) {
+        return 'F-0001';
     }
-    return id;
+
+    // Buscar el número más alto
+    const numeros = facturas.value
+        .map(f => f.numero)
+        .filter(num => /^F-\d+$/.test(num)) // aseguramos formato correcto
+        .map(num => parseInt(num.split('-')[1])) // nos quedamos con el número
+
+    const maxNumero = Math.max(...numeros);
+    const siguiente = maxNumero + 1;
+
+    // Formateamos con ceros a la izquierda (mínimo 4 dígitos)
+    const numeroFormateado = siguiente.toString().padStart(4, '0');
+
+    return `F-${numeroFormateado}`;
+}
+async function saveFactura() {
+    try {
+        const facturaBody = {
+            cliente:clienteSeleccionado.value?.nombre+' '+clienteSeleccionado.value?.apellido,
+            numero: factura.value.numero === '' ? generarNumero() : factura.value.numero,
+            total: factura.value.total,
+            idCliente:  clienteSeleccionado.value?.id ?? null,
+            //FALTA estado y tipo factura
+            referencias: []
+        }
+            crearFactura(facturaBody)
+                .then(response => {
+                    toast.add({
+                        severity: 'success',
+                        summary: 'Éxito',
+                        detail: response.data.mensaje,
+                        life: 3000
+                    });
+                    cargarFacturas();
+                })
+                .catch(error => {
+                    toast.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: error.response?.data?.mensaje || 'Error al crear factura',
+                        life: 3000
+                    });
+                });
+
+        facturaDialog.value = false;
+        factura.value = { id: null, numero: '', total: null, idCliente: null };
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.mensaje || 'Error al guardar factura',
+            life: 3000
+        });
+    }
 }
 </script>
 
@@ -104,8 +181,7 @@ function createId() {
         <div class="card">
             <Toolbar class="mb-6">
                 <template #start>
-                    <Button label="Nueva Factura" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                    <Button label="Eliminar" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected" :disabled="!selectedFacturas.length" />
+                    <Button label="Nuevo" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
                 </template>
                 <template #end>
                     <Button label="Exportar" icon="pi pi-upload" severity="secondary" @click="dt.exportCSV()" />
@@ -114,84 +190,128 @@ function createId() {
 
             <DataTable
                 ref="dt"
-                v-model:selection="selectedFacturas"
                 :value="facturas"
                 dataKey="id"
-                :paginator="true"
-                :rows="10"
-                :rowsPerPageOptions="[5, 10, 25]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} facturas"
             >
-                <Column selectionMode="multiple" style="width: 3rem" :exportable="false" />
-                <Column field="id" header="ID" sortable />
-                <Column field="numero" header="Número" sortable />
-                <Column field="cliente" header="Cliente" sortable />
-                <Column field="total" header="Total" :body="(data) => formatoGs(data.total)" sortable />
+                <Column field="id" header="ID" sortable style="min-width: 6rem" />
+                <Column field="numero" header="Número" sortable style="min-width: 12rem" />
+                <Column field="total" header="Total" sortable style="min-width: 12rem" />
+                <Column field="idClienteProv" header="ID Cliente/Proveedor" sortable style="min-width: 14rem" />
+                <Column field="tipoFactura" header="Tipo Factura" sortable style="min-width: 12rem" />
+                <Column field="estado" header="Estado" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        <span
+                            :class="{
+                            'estado-vigente': slotProps.data.estado === 'VIGENTE',
+                            'estado-anulada': slotProps.data.estado === 'ANULADA'
+                          }"
+                        >
+                          {{ slotProps.data.estado }}
+                        </span>
+                    </template>
+                </Column>
+
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editFactura(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteFactura(slotProps.data)" />
+                        <Button icon="pi pi-times" outlined rounded severity="danger" @click="anular(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
+
         </div>
 
-        <Dialog v-model:visible="facturaDialog" :style="{ width: '450px' }" header="Detalles de la Factura" :modal="true">
-            <div class="flex flex-col gap-6">
-                <div>
-                    <label for="numero" class="block font-bold mb-3">Número</label>
-                    <InputText id="numero" class="w-full" v-model.trim="factura.numero" autofocus :invalid="submitted && !factura.numero" />
-                    <small v-if="submitted && !factura.numero" class="text-red-500">El número es obligatorio.</small>
+        <Dialog v-model:visible="facturaDialog" header="Factura" modal :closable="false" :style="{ width: '450px' }">
+            <div class="p-fluid">
+                <div class="field" >
+                    <label for="numero" class="block mb-2 font-bold">Número:</label>
+                    <InputText id="numero" v-model="factura.numero" class="w-full" disabled />
                 </div>
-
-                <div>
-                    <label for="cliente" class="block font-bold mb-3">Cliente</label>
-                    <InputText id="cliente" class="w-full" v-model="factura.cliente" />
-                </div>
-
-                <div>
-                    <label for="total" class="block font-bold mb-3">Total</label>
+                <div class="field">
+                    <label for="total" class="block mb-2 font-bold">Total:</label>
                     <InputNumber
                         id="total"
                         v-model="factura.total"
                         class="w-full"
-                        mode="currency"
-                        currency="PYG"
-                        locale="es-PY"
-                        :min="0"
-                        :useGrouping="true"
-                        :currencyDisplay="'symbol'"
+                        prefix="Gs. "
+                        :minFractionDigits="0"
+                        :maxFractionDigits="0"
                     />
+                </div>
+                <div class="field">
+                    <label for="idCliente" class="block mb-2 font-bold">Cliente (RUC):</label>
+
+                    <Dropdown
+                        id="idCliente"
+                        v-model="clienteSeleccionado"
+                        :options="clientes"
+                        optionLabel="ruc"
+                        :optionValue="cliente => cliente"
+                        filter
+                        filterBy="ruc"
+                        placeholder="Seleccione un cliente"
+                        class="w-full mb-2"
+                    />
+
+                    <div class="flex justify-end">
+                        <Button
+                            label="Limpiar"
+                            icon="pi pi-trash"
+                            iconPos="right"
+                            class="p-button-secondary"
+                            @click="clienteSeleccionado = null"
+                            :disabled="!clienteSeleccionado"
+                            title="Limpiar selección"
+                        />
+                    </div>
+                </div>
+
+
+                <div class="field" v-if="clienteSeleccionado">
+                    <label class="block mb-2 font-bold">Cliente Seleccionado:</label>
+                    <InputText :value="clienteSeleccionado.nombre + ' ' + clienteSeleccionado.apellido" disabled class="w-full" />
                 </div>
             </div>
 
             <template #footer>
-                <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
-                <Button label="Guardar" icon="pi pi-check" @click="saveFactura" />
+                <Button label="Cancelar" icon="pi pi-times" outlined @click="facturaDialog = false" />
+                <Button label="Guardar" icon="pi pi-check" :disabled="isFormInvalid" @click="saveFactura" />
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteFacturaDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="factura">¿Estás seguro que deseas eliminar la factura <b>{{ factura.numero }}</b>?</span>
+        <Dialog v-model:visible="deleteFacturaDialog" header="Confirmar" modal :closable="false" :style="{ width: '350px' }">
+            <div class="confirmation-content">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+                <span>¿Está seguro que desea anular la factura <b>{{ factura.numero }}</b>?</span>
             </div>
-            <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteFacturaDialog = false" />
-                <Button label="Sí" icon="pi pi-check" @click="deleteFactura" />
-            </template>
-        </Dialog>
 
-        <Dialog v-model:visible="deleteFacturasDialog" :style="{ width: '450px' }" header="Confirmar" :modal="true">
-            <div class="flex items-center gap-4">
-                <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span>¿Estás seguro que deseas eliminar las facturas seleccionadas?</span>
-            </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteFacturasDialog = false" />
-                <Button label="Sí" icon="pi pi-check" text @click="deleteSelectedFacturas" />
+                <Button label="No" icon="pi pi-times" outlined @click="deleteFacturaDialog = false" />
+                <Button label="Sí" icon="pi pi-check" severity="danger" @click="confirmarAnular" />
             </template>
         </Dialog>
     </div>
 </template>
+
+<style scoped>
+.field {
+    margin-bottom: 1rem;
+}
+.estado-vigente {
+    color: #155724;
+    background-color: rgba(40, 167, 69, 0.5); /* verde con 50% opacidad */
+    border: 1px solid #28a745;
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-weight: bold;
+}
+
+.estado-anulada {
+    color: #721c24;
+    background-color: rgba(220, 53, 69, 0.5); /* rojo con 50% opacidad */
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-weight: bold;
+}
+
+</style>
