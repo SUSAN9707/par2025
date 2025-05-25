@@ -55,6 +55,7 @@ public class FacturaService {
         factura.setNumero(updateFacturaDTO.getNumero());
         factura.setCliente(updateFacturaDTO.getCliente());
         factura.setTotal(updateFacturaDTO.getTotal());
+        factura.setIdCliente(updateFacturaDTO.getIdCliente());
         return factura;
     }
 }

@@ -14,6 +14,16 @@ public class FacturaDTO {
     private String cliente;
     private double total;
 
+    public int getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(int idCliente) {
+        this.idCliente = idCliente;
+    }
+
+    private int idCliente;
+
     // Getters y setters
     public Long getId() {
         return id;

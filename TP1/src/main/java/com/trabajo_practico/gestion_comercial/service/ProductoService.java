@@ -54,6 +54,7 @@ public class ProductoService {
         producto.setNombre(updateProductoDTO.getNombre());
         producto.setPrecio(updateProductoDTO.getPrecio());
         producto.setDescripcion(updateProductoDTO.getDescripcion());
+        producto.setStock(updateProductoDTO.getStock());
         return producto;
     }
 }

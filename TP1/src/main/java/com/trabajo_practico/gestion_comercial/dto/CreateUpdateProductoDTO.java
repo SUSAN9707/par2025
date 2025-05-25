@@ -6,6 +6,16 @@ public class CreateUpdateProductoDTO {
     private double precio;
     private String descripcion;
 
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    private int stock;
+
     public String getNombre() {
         return nombre;
     }
