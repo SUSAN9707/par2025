@@ -4,10 +4,10 @@ import { ref } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
-    {
+    /*{
         label: 'Inicio',
         items: [{ label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }]
-    },
+    },*/
     {
         label: 'Administración',
         icon: 'pi pi-fw pi-briefcase',
@@ -42,13 +42,13 @@ const model = ref([
                 label: 'Compras',
                 icon: 'pi pi-shopping-cart',
                 to: '/pages/compras'
-            },
-            {
-                label: 'Reportes',
-                icon: 'pi pi-chart-bar',
-                to: '/pages/reportes'
             }
         ]
+    }, {
+        label: 'Reportes',
+        to: '/reportes',
+        items: [{label: 'Inventario de productos', icon: 'pi pi-tags', to: '/reportes/inventario-productos'},
+            {label: 'Movimientos financieros', icon: 'pi pi-chart-line', to: '/reportes/movimientos-financieros'}]
     }
 ]);
 </script>

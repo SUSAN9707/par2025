@@ -64,6 +64,12 @@ const router = createRouter({
                     name: 'Compras',
                     component: () => import('@/views/pages/Compras.vue'),
                     meta: { requiresAuth: true }
+                },
+                {
+                    path: '/reportes/inventario-productos',
+                    name: 'Inventario de Productos',
+                    component: () => import('@/views/reportes/ReporteInventario.vue'),
+                    meta: { requiresAuth: true }
                 }
             ]
         }
