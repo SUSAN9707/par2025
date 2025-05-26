@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted, computed, watch} from 'vue'
+import {ref, onMounted, computed, watch, watchEffect} from 'vue'
 import { useToast } from 'primevue/usetoast'
 import {
     getVentas,
@@ -19,7 +19,7 @@ const venta = ref({
     id: null,
     productoId: '',
     cantidad: 1,
-    monto:0
+    montoTotal:0
 })
 
 const toast = useToast()
@@ -49,6 +49,7 @@ async function cargarVentas() {
 
 onMounted(() => {
     cargarVentas()
+    cargarProductos()
 })
 
 function openNew() {
@@ -56,16 +57,16 @@ function openNew() {
         id: null,
         productoId: '',
         cantidad: 1,
-        monto:0
+        montoTotal:0
     }
+    productoSeleccionado.value=null
     submitted.value = false
-    cargarProductos()
     ventaDialog.value = true
 }
 async function cargarProductos() {
     try {
         const response = await getProductos();
-        productos.value = response.data.data; // lista de clientes
+        productos.value = response.data.data.filter(p => p.stock !== 0); // lista de clientes
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -78,7 +79,7 @@ async function cargarProductos() {
 }
 function editVenta(ven) {
     venta.value = { ...ven }
-    cargarProductos()
+    productoSeleccionado.value = productos.value.find(p => p.id === ven.productoId) || null;
     ventaDialog.value = true
 
 }
@@ -99,8 +100,9 @@ function deleteVenta() {
                 life: 3000
             })
             cargarVentas()
+            cargarProductos()
             venta.value = { id: null, productoId: '', cantidad: 1,
-                monto:0 }
+                montoTotal:0 }
         })
         .catch(error => {
             toast.add({
@@ -110,6 +112,7 @@ function deleteVenta() {
                 life: 3000
             })
         })
+
 }
 
 const isFormInvalid = computed(() => {
@@ -120,10 +123,14 @@ function saveVenta() {
     submitted.value = true
 
     if (!isFormInvalid.value) {
+        if (productoSeleccionado.value && venta.value.cantidad) {
+            venta.value.montoTotal = productoSeleccionado.value.precio * venta.value.cantidad;
+        }
         if (venta.value.id) {
             const ventaParaActualizar= {
                 productoId: venta.value.productoId,
-                cantidad: venta.value.cantidad
+                cantidad: venta.value.cantidad,
+                montoTotal:venta.value.montoTotal
             };
 
             actualizarVenta(venta.value.id, ventaParaActualizar)
@@ -135,6 +142,7 @@ function saveVenta() {
                         life: 3000
                     })
                     cargarVentas()
+                    cargarProductos()
                 })
                 .catch(error => {
                     toast.add({
@@ -147,7 +155,8 @@ function saveVenta() {
         } else {
             const ventaParaGuardar = {
                 productoId: venta.value.productoId,
-                cantidad: venta.value.cantidad
+                cantidad: venta.value.cantidad,
+                montoTotal:venta.value.montoTotal
             };
             console.log(ventaParaGuardar)
             crearVenta(ventaParaGuardar)
@@ -159,6 +168,7 @@ function saveVenta() {
                         life: 3000
                     })
                     cargarVentas()
+                    cargarProductos()
                 })
                 .catch(error => {
                     toast.add({
@@ -171,24 +181,31 @@ function saveVenta() {
         }
         ventaDialog.value = false
         venta.value = { id: null, productoId: '', cantidad: 1,
-            monto:0 }
+            montoTotal:0 }
     }
 }
-watch(
-    [productoSeleccionado, () => venta.value.cantidad],
-    ([nuevoProducto, nuevaCantidad]) => {
-        if (nuevoProducto && nuevaCantidad) {
-            console.log('1')
-            venta.value.monto = nuevoProducto.precio * nuevaCantidad;
-            console.log(venta.value.monto)
-        } else {
-            console.log('2')
-            venta.value.monto = 0;
-        }
+watchEffect(() => {
+    if (productoSeleccionado.value && venta.value.cantidad) {
+        venta.value.montoTotal = productoSeleccionado.value.precio * venta.value.cantidad;
+    } else {
+        venta.value.montoTotal = 0;
     }
-);
+})
 
+watch(productoSeleccionado, (nuevoProducto) => {
+    venta.value.productoId = nuevoProducto?.id || ''
+})
 
+function formatPrecio(valor) {
+    if(!valor){
+        return 'Desconocido'
+    }
+    return new Intl.NumberFormat('es-PY', {
+        style: 'currency',
+        currency: 'PYG',
+        minimumFractionDigits: 0
+    }).format(valor);
+}
 
 </script>
 
@@ -206,8 +223,21 @@ watch(
 
             <DataTable ref="dt" :value="ventas" dataKey="id">
                 <Column field="id" header="ID" sortable style="min-width: 6rem" />
-                <Column field="productoId" header="Producto ID" sortable style="min-width: 12rem" />
+                <Column header="Producto" sortable style="min-width: 12rem">
+                    <template #body="slotProps">
+                        {{
+                            productos.find(p => p.id === slotProps.data.productoId)?.nombre || 'Desconocido'
+                        }}
+                    </template>
+                </Column>
+
                 <Column field="cantidad" header="Cantidad" sortable style="min-width: 10rem" />
+                <Column field="montoTotal" header="montoTotal Total" sortable style="min-width: 12rem">
+                    <template #body="slotProps">
+                        Gs. {{ formatPrecio(slotProps.data.montoTotal) }}
+                    </template>
+                </Column>
+
                 <Column field="fecha" header="Fecha" sortable style="min-width: 14rem" />
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
@@ -234,7 +264,7 @@ watch(
                         placeholder="Seleccione un producto"
                         class="w-full mb-2"
                     />
-
+                    <small class="text-gray-500 italic">Solo se muestran productos con stock disponible.</small>
                     <div class="flex justify-end">
                         <Button
                             label="Limpiar"
@@ -249,13 +279,24 @@ watch(
                 </div>
                 <div class="field" v-if="productoSeleccionado">
                     <label for="cantidad" class="block mb-2 font-bold">Cantidad:</label>
-                    <InputNumber id="cantidad" v-model="venta.cantidad" class="w-full" :min="1" />
-                </div>
-                <div class="field" v-if="productoSeleccionado">
-                    <label for="monto" class="block mb-2 font-bold">Monto total:</label>
                     <InputNumber
-                        id="monto"
-                        v-model="venta.value.monto"
+                        id="cantidad"
+                        v-model="venta.cantidad"
+                        class="w-full"
+                        :min="1"
+                        :step="1"
+                        showButtons
+                        buttonLayout="horizontal"
+                        incrementButtonIcon="pi pi-plus"
+                        decrementButtonIcon="pi pi-minus"
+                    />
+                </div>
+
+                <div class="field" v-if="productoSeleccionado">
+                    <label for="montoTotal" class="block mb-2 font-bold">Monto total:</label>
+                    <InputNumber
+                        id="montoTotal"
+                        v-model="venta.montoTotal"
                         class="w-full"
                         prefix="Gs. "
                         :minFractionDigits="0"
