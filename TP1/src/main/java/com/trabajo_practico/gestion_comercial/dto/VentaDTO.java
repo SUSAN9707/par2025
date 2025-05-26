@@ -11,6 +11,7 @@ public class VentaDTO {
         setFecha(venta.getFecha());
         setCantidad(venta.getCantidad());
         setProductoId(venta.getProducto().getId());
+        setMontoTotal(venta.getMontoTotal());
     }
 
     private Long id;

@@ -4,15 +4,11 @@ public class CreateUpdateVentaDTO {
 
     private Long productoId;
     private Integer cantidad;
-    public static Double getMontoTotal() {
+    private Double montoTotal; // ✅ no static
+
+    public Double getMontoTotal() {
         return montoTotal;
     }
-
-    public void setMontoTotal(Double montoTotal) {
-        CreateUpdateVentaDTO.montoTotal = montoTotal;
-    }
-
-    private static Double montoTotal;
 
     public Long getProductoId() {
         return productoId;

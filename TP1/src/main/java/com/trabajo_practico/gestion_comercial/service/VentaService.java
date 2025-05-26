@@ -111,7 +111,7 @@ public class VentaService {
         Producto producto = productoRepository.findById(dto.getProductoId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
         venta.setProducto(producto);
-        venta.setMontoTotal(CreateUpdateVentaDTO.getMontoTotal());
+        venta.setMontoTotal(dto.getMontoTotal());
         return venta;
     }
 }

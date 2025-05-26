@@ -102,7 +102,7 @@ public class CompraService {
         Producto producto = productoRepository.findById(dto.getProductoId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
         compra.setProducto(producto);
-
+        compra.setMontoTotal(dto.getMontoTotal());
         return compra;
     }
 }

@@ -11,8 +11,17 @@ public class CompraDTO {
         setFecha(compra.getFecha());
         setCantidad(compra.getCantidad());
         setProductoId(compra.getProducto().getId());
+        setMontoTotal(compra.getMontoTotal());
+    }
+    public Double getMontoTotal() {
+        return montoTotal;
     }
 
+    public void setMontoTotal(Double montoTotal) {
+        this.montoTotal = montoTotal;
+    }
+
+    private Double montoTotal;
     private Long id;
     private LocalDateTime fecha;
     private Integer cantidad;
