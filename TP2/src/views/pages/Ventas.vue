@@ -191,7 +191,19 @@ watchEffect(() => {
         venta.value.montoTotal = 0;
     }
 })
+function formatFecha(fechaISO) {
+    if (!fechaISO) return 'Desconocido'
 
+    const fecha = new Date(fechaISO)
+    const dia = String(fecha.getDate()).padStart(2, '0')
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0')
+    const anio = fecha.getFullYear()
+
+    const horas = String(fecha.getHours()).padStart(2, '0')
+    const minutos = String(fecha.getMinutes()).padStart(2, '0')
+
+    return `${dia}/${mes}/${anio} ${horas}:${minutos}`
+}
 watch(productoSeleccionado, (nuevoProducto) => {
     venta.value.productoId = nuevoProducto?.id || ''
 })
@@ -238,7 +250,11 @@ function formatPrecio(valor) {
                     </template>
                 </Column>
 
-                <Column field="fecha" header="Fecha" sortable style="min-width: 14rem" />
+                <Column field="fecha" header="Fecha" sortable style="min-width: 14rem">
+                    <template #body="slotProps">
+                        {{ formatFecha(slotProps.data.fecha) }}
+                    </template>
+                </Column>
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editVenta(slotProps.data)" />

@@ -10,7 +10,8 @@ export function getCompras() {
 export function crearCompra(compra) {
     const body = {
         productoId: compra.productoId,
-        cantidad: compra.cantidad
+        cantidad: compra.cantidad,
+        montoTotal:compra.montoTotal
     }
     return api.post('/compras', body)
 }
