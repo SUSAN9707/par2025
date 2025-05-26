@@ -70,6 +70,12 @@ const router = createRouter({
                     name: 'Inventario de Productos',
                     component: () => import('@/views/reportes/ReporteInventario.vue'),
                     meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/movimientos-financieros',
+                    name: 'Movimientos Financieros',
+                    component: () => import('@/views/reportes/ReporteFinanciero.vue'),
+                    meta: { requiresAuth: true }
                 }
             ]
         }

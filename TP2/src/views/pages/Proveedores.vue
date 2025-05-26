@@ -7,7 +7,9 @@ import {
     actualizarProveedor,
     eliminarProveedor
 } from '@/service/proveedor.service'
-
+const rucValido = computed(() => /^\d{6,8}-\d$/.test(proveedor.value.ruc))
+const emailValido = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(proveedor.value.email))
+const telefonoValido = computed(() => /^09[6-9]\d{6}$/.test(proveedor.value.telefono))
 const dt = ref()
 const proveedores = ref([])
 const proveedor = ref({
@@ -87,9 +89,9 @@ async function deleteProveedor() {
 
 const isFormInvalid = computed(() => {
     return !proveedor.value.nombre.trim() ||
-        !proveedor.value.ruc.trim() ||
-        !proveedor.value.telefono.trim() ||
-        !proveedor.value.email.trim() ||
+        !proveedor.value.ruc.trim() ||!rucValido.value||
+        !proveedor.value.telefono.trim() || !telefonoValido.value ||
+        !proveedor.value.email.trim() ||!emailValido.value||
         !proveedor.value.direccion.trim()
 })
 
@@ -170,7 +172,7 @@ async function saveProveedor() {
                 </div>
                 <div class="field">
                     <label for="telefono" class="block mb-2 font-bold">Teléfono:</label>
-                    <InputText id="telefono" v-model="proveedor.telefono" class="w-full" />
+                    <InputText id="telefono" placeholder="09XXXXXXXX" v-model="proveedor.telefono" class="w-full" />
                 </div>
                 <div class="field">
                     <label for="email" class="block mb-2 font-bold">Email:</label>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import {computed, ref} from 'vue'
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue'
 import { login } from '@/service/auth.service' // Importamos tu función login
 import { useRouter } from 'vue-router'
@@ -11,7 +11,9 @@ const errorMessage = ref('')
 const isLoading = ref(false)
 
 const router = useRouter() // Instancia para redirigir luego del login
-
+const isFormInvalid = computed(() => {
+    return !email.value||!password.value
+})
 async function handleLogin() {
     errorMessage.value = ''
     isLoading.value = true
@@ -73,7 +75,7 @@ async function handleLogin() {
                         <Password id="password1" v-model="password" placeholder="Contraseña" :toggleMask="true" class="mb-4" fluid :feedback="false"></Password>
 
 
-                        <Button :disabled="isLoading" class="w-full"  @click="handleLogin">{{ isLoading ? 'Ingresando...' : 'Iniciar sesión' }}</Button>
+                        <Button :disabled="isLoading||isFormInvalid" class="w-full"  @click="handleLogin">{{ isLoading ? 'Ingresando...' : 'Iniciar sesión' }}</Button>
                     </div>
                 </div>
             </div>

@@ -20,7 +20,7 @@ api.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Aquí borramos token y redirigimos
             localStorage.removeItem('token')
-            router.push('/login')
+            router.push('auth/login')
         }
         return Promise.reject(error)
     }

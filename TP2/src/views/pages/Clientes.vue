@@ -6,7 +6,7 @@ import {actualizarCliente, crearCliente, eliminarCliente, getClientes} from "@/s
 const dt = ref();
 const submitted = ref(false);
 const clientes = ref([])
-
+const rucValido = computed(() => /^\d{6,8}-\d$/.test(cliente.value.ruc))
 
 
 const cliente = ref({
@@ -98,7 +98,7 @@ function deleteCliente() {
 const isFormInvalid = computed(() => {
     return !cliente.value.nombre.trim() ||
         !cliente.value.apellido.trim() ||
-        !cliente.value.ruc.trim() ||
+        !cliente.value.ruc.trim() || !rucValido.value ||
         !cliente.value.direccion.trim()
 })
 

@@ -1,22 +1,17 @@
-<script setup>
-import BestSellingWidget from '@/components/dashboard/BestSellingWidget.vue';
-import NotificationsWidget from '@/components/dashboard/NotificationsWidget.vue';
-import RecentSalesWidget from '@/components/dashboard/RecentSalesWidget.vue';
-import RevenueStreamWidget from '@/components/dashboard/RevenueStreamWidget.vue';
-import StatsWidget from '@/components/dashboard/StatsWidget.vue';
-</script>
-
 <template>
-    <div class="grid grid-cols-12 gap-8">
-        <StatsWidget />
+    <div class="p-6">
+        <div class="text-2xl font-bold mb-4">¡Bienvenido al Panel de Gestión Comercial FINBOX!</div>
+        <p class="text-gray-600 mb-6">
+            Desde aquí podés administrar clientes, proveedores, productos, facturas y más.
+        </p>
 
-        <div class="col-span-12 xl:col-span-6">
-            <RecentSalesWidget />
-            <BestSellingWidget />
-        </div>
-        <div class="col-span-12 xl:col-span-6">
-            <RevenueStreamWidget />
-            <NotificationsWidget />
-        </div>
+
     </div>
 </template>
+
+<style scoped>
+.dashboard-card {
+    @apply bg-white shadow p-6 rounded-lg text-center hover:bg-gray-50 cursor-pointer flex flex-col items-center justify-center;
+}
+</style>
+
