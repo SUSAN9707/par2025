@@ -13,6 +13,17 @@ public class Producto {
     private double precio;
     private String descripcion;
 
+    @Column(nullable = false)
+    private int stockMinimo;
+
+    public int getStockMinimo() {
+        return stockMinimo;
+    }
+
+    public void setStockMinimo(int stockMinimo) {
+        this.stockMinimo = stockMinimo;
+    }
+
     public int getStock() {
         return stock_actual;
     }

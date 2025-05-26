@@ -1,16 +1,14 @@
 package com.trabajo_practico.gestion_comercial.controller;
 
-import com.trabajo_practico.gestion_comercial.dto.MovimientoMensualDTO;
-import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
+import com.trabajo_practico.gestion_comercial.dto.*;
 import com.trabajo_practico.gestion_comercial.service.ReporteServiceG;
-import com.trabajo_practico.gestion_comercial.service.impl.ReporteServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v2/reportes")
-public class ReporteControllerG{
+@RequestMapping("/${api.version}/reportes")
+public class ReporteControllerG {
 
     private final ReporteServiceG reporteService;
 
@@ -25,5 +23,11 @@ public class ReporteControllerG{
     ) {
         MovimientoMensualDTO data = reporteService.obtenerMovimientoMensual(mes, anio);
         return ResponseEntity.ok(new ApiResponse("Reporte de movimientos cargado", HttpStatus.OK.value(), data));
+    }
+
+    @GetMapping("/inventario")
+    public ResponseEntity<ApiResponse> obtenerReporteInventario() {
+        InventarioCompletoDTO reporte = reporteService.obtenerInventarioProductos();
+        return ResponseEntity.ok(new ApiResponse("Reporte de inventario generado", HttpStatus.OK.value(), reporte));
     }
 }
