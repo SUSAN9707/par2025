@@ -1,6 +1,7 @@
 package com.trabajo_practico.gestion_comercial.controller;
 
 import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
+import com.trabajo_practico.gestion_comercial.dto.CompraConFacturaDTO;
 import com.trabajo_practico.gestion_comercial.dto.CompraDTO;
 import com.trabajo_practico.gestion_comercial.dto.CreateUpdateCompraDTO;
 import com.trabajo_practico.gestion_comercial.exception.ResourceNotFoundException;
@@ -26,9 +27,8 @@ public class CompraController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CompraDTO>> crearCompra(@RequestBody CreateUpdateCompraDTO compra) {
-        var nuevaCompra = compraService.crearCompra(compra);
-        return ResponseEntity.ok(new ApiResponse<>("Compra registrada exitosamente", HttpStatus.OK.value(), nuevaCompra));
+    public ResponseEntity<CompraDTO> crearCompra(@RequestBody CompraConFacturaDTO dto) {
+        return ResponseEntity.ok(compraService.crearCompra(dto));
     }
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<CompraDTO>> actualizarCompra(@PathVariable Long id, @RequestBody CreateUpdateCompraDTO dto) {

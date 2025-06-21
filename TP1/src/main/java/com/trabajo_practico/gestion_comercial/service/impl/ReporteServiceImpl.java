@@ -40,10 +40,10 @@ public class ReporteServiceImpl implements ReporteServiceG {
         List<Compra> compras = compraRepository.findByMesYAnio(mesConsulta, anioConsulta);
 
         long cantidadVentas = ventas.size();
-        double totalVentas = ventas.stream().mapToDouble(Venta::getMontoTotal).sum();
+        double totalVentas = ventas.stream().mapToDouble(Venta::getTotalPorArticulo).sum();
 
         long cantidadCompras = compras.size();
-        double totalCompras = compras.stream().mapToDouble(Compra::getMontoTotal).sum();
+        double totalCompras = compras.stream().mapToDouble(Compra::getTotalPorArticulo).sum();
 
         return new MovimientoMensualDTO(
                 mesConsulta,

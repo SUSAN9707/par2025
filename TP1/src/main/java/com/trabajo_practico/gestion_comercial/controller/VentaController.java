@@ -1,6 +1,7 @@
 package com.trabajo_practico.gestion_comercial.controller;
 
 import com.trabajo_practico.gestion_comercial.dto.ApiResponse;
+import com.trabajo_practico.gestion_comercial.dto.VentaConFacturaDTO;
 import com.trabajo_practico.gestion_comercial.dto.VentaDTO;
 import com.trabajo_practico.gestion_comercial.dto.CreateUpdateVentaDTO;
 import com.trabajo_practico.gestion_comercial.exception.ResourceNotFoundException;
@@ -26,8 +27,8 @@ public class VentaController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<VentaDTO>> crearVenta(@RequestBody CreateUpdateVentaDTO venta) {
-        var nuevaVenta = ventaService.crearVenta(venta);
+    public ResponseEntity<ApiResponse<VentaDTO>> crearVenta(@RequestBody VentaConFacturaDTO dto) {
+        var nuevaVenta = ventaService.crearVenta(dto);
         return ResponseEntity.ok(new ApiResponse<>("Venta registrada exitosamente", HttpStatus.OK.value(), nuevaVenta));
     }
 

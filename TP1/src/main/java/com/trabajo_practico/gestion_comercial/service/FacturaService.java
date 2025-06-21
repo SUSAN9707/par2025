@@ -40,7 +40,7 @@ public class FacturaService {
             return null; // Tipo de factura inválido
         }
 
-        Long idClienteProv = createUpdateFacturaDTO.getidClienteProv();
+        Long idClienteProv = createUpdateFacturaDTO.getIdClienteProv();
 
         boolean existe = switch (tipoFactura) {
             case COMPRA -> proveedorRepository.existsById(idClienteProv);
@@ -100,12 +100,12 @@ public class FacturaService {
         // Verificar si existe cliente o proveedor según tipoFactura
         if ("COMPRA".equalsIgnoreCase(updateFacturaDTO.getTipoFactura())) {
             // Para tipo COMPRA, validar proveedor
-            if (!proveedorRepository.existsById(updateFacturaDTO.getidClienteProv())) {
+            if (!proveedorRepository.existsById(updateFacturaDTO.getIdClienteProv())) {
                 return null; // Proveedor no encontrado
             }
         } else if ("VENTA".equalsIgnoreCase(updateFacturaDTO.getTipoFactura())) {
             // Para tipo VENTA, validar cliente
-            if (!clienteRepository.existsById(updateFacturaDTO.getidClienteProv())) {
+            if (!clienteRepository.existsById(updateFacturaDTO.getIdClienteProv())) {
                 return null; // Cliente no encontrado
             }
         } else {
@@ -133,7 +133,7 @@ public class FacturaService {
         factura.setNumero(updateFacturaDTO.getNumero());
         factura.setCliente(updateFacturaDTO.getCliente());
         factura.setTotal(updateFacturaDTO.getTotal());
-        factura.setidClienteProv(updateFacturaDTO.getidClienteProv());
+        factura.setIdClienteProv(updateFacturaDTO.getIdClienteProv());
         factura.setTipoFactura(updateFacturaDTO.getTipoFactura());
         return factura;
     }

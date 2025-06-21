@@ -3,78 +3,58 @@ package com.trabajo_practico.gestion_comercial.dto;
 import com.trabajo_practico.gestion_comercial.model.EstadoFactura;
 import com.trabajo_practico.gestion_comercial.model.Factura;
 
+import java.time.LocalDateTime;
+
 public class FacturaDTO {
-    public FacturaDTO(Factura factura) {
-        setId(factura.getId());
-        setNumero(factura.getNumero());
-        setCliente(factura.getCliente());
-        setTotal(factura.getTotal());
-        setidClienteProv(factura.getidClienteProv());
-    }
+
     private Long id;
     private String numero;
     private String cliente;
     private double total;
-    private EstadoFactura estado;
-
-    public EstadoFactura getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoFactura estado) {
-        this.estado = estado;
-    }
-
-    public long getidClienteProv() {
-        return idClienteProv;
-    }
-
-    public String getTipoFactura() {
-        return tipoFactura;
-    }
-
-    public void setTipoFactura(String tipoFactura) {
-        this.tipoFactura = tipoFactura;
-    }
-
-    private String tipoFactura;
-    public void setidClienteProv(long idClienteProv) {
-        this.idClienteProv = idClienteProv;
-    }
-
     private long idClienteProv;
+    private String tipoFactura;
+    private EstadoFactura estado;
+    private LocalDateTime fecha;
+    private String formaPago;
 
+    public FacturaDTO(Factura factura) {
+        this.id = factura.getId();
+        this.numero = factura.getNumero();
+        this.cliente = factura.getCliente();
+        this.total = factura.getTotal();
+        this.idClienteProv = factura.getIdClienteProv();
+        this.tipoFactura = factura.getTipoFactura();
+        this.estado = factura.getEstado();
+        this.fecha = factura.getFecha();
+        this.formaPago = factura.getFormaPago();
+    }
 
     // Getters y setters
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getNumero() {
-        return numero;
-    }
+    public String getNumero() { return numero; }
+    public void setNumero(String numero) { this.numero = numero; }
 
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
+    public String getCliente() { return cliente; }
+    public void setCliente(String cliente) { this.cliente = cliente; }
 
-    public String getCliente() {
-        return cliente;
-    }
+    public double getTotal() { return total; }
+    public void setTotal(double total) { this.total = total; }
 
-    public void setCliente(String cliente) {
-        this.cliente = cliente;
-    }
+    public long getIdClienteProv() { return idClienteProv; }
+    public void setIdClienteProv(long idClienteProv) { this.idClienteProv = idClienteProv; }
 
-    public double getTotal() {
-        return total;
-    }
+    public String getTipoFactura() { return tipoFactura; }
+    public void setTipoFactura(String tipoFactura) { this.tipoFactura = tipoFactura; }
 
-    public void setTotal(double total) {
-        this.total = total;
-    }
+    public EstadoFactura getEstado() { return estado; }
+    public void setEstado(EstadoFactura estado) { this.estado = estado; }
+
+    public LocalDateTime getFecha() { return fecha; }
+    public void setFecha(LocalDateTime fecha) { this.fecha = fecha; }
+
+    public String getFormaPago() { return formaPago; }
+    public void setFormaPago(String formaPago) { this.formaPago = formaPago; }
 }

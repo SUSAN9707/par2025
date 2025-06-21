@@ -18,7 +18,7 @@ public class CreateUpdateFacturaDTO {
     }
 
     private List<Long> referencias;
-    public long getidClienteProv() {
+    public long getIdClienteProv() {
         return idClienteProv;
     }
 
@@ -31,7 +31,7 @@ public class CreateUpdateFacturaDTO {
     }
 
     private String tipoFactura;
-    public void setidClienteProv(long idClienteProv) {
+    public void setIdClienteProv(long idClienteProv) {
         this.idClienteProv = idClienteProv;
     }
 

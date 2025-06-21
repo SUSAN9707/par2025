@@ -3,12 +3,10 @@ package com.trabajo_practico.gestion_comercial.dto;
 public class CreateUpdateVentaDTO {
 
     private Long productoId;
-    private Integer cantidad;
-    private Double montoTotal; // ✅ no static
 
-    public Double getMontoTotal() {
-        return montoTotal;
-    }
+    private Integer cantidad;
+    private Double precioUnitario;
+    private Double totalPorArticulo;
 
     public Long getProductoId() {
         return productoId;
@@ -18,11 +16,38 @@ public class CreateUpdateVentaDTO {
         this.productoId = productoId;
     }
 
+    @Override
+    public String toString() {
+        return "CreateUpdateVentaDTO{" +
+                "productoId=" + productoId +
+                ", cantidad=" + cantidad +
+                ", precioUnitario=" + precioUnitario +
+                ", totalPorArticulo=" + totalPorArticulo +
+                '}';
+    }
+
+
     public Integer getCantidad() {
         return cantidad;
     }
 
     public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public Double getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(Double precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
+
+    public Double getTotalPorArticulo() {
+        return totalPorArticulo;
+    }
+
+    public void setTotalPorArticulo(Double totalPorArticulo) {
+        this.totalPorArticulo = totalPorArticulo;
     }
 }

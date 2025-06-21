@@ -1,9 +1,14 @@
 package com.trabajo_practico.gestion_comercial.service;
 
+import com.trabajo_practico.gestion_comercial.dto.CreateFacturaDTO;
+import com.trabajo_practico.gestion_comercial.dto.VentaConFacturaDTO;
 import com.trabajo_practico.gestion_comercial.dto.VentaDTO;
 import com.trabajo_practico.gestion_comercial.dto.CreateUpdateVentaDTO;
+import com.trabajo_practico.gestion_comercial.model.EstadoFactura;
+import com.trabajo_practico.gestion_comercial.model.Factura;
 import com.trabajo_practico.gestion_comercial.model.Producto;
 import com.trabajo_practico.gestion_comercial.model.Venta;
+import com.trabajo_practico.gestion_comercial.repository.FacturaRepository;
 import com.trabajo_practico.gestion_comercial.repository.ProductoRepository;
 import com.trabajo_practico.gestion_comercial.repository.VentaRepository;
 import org.springframework.stereotype.Service;
@@ -12,37 +17,72 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import org.springframework.transaction.annotation.Transactional;
 @Service
 public class VentaService {
 
     private final VentaRepository ventaRepository;
     private final ProductoRepository productoRepository;
+    private final FacturaRepository facturaRepository;
 
-    public VentaService(VentaRepository ventaRepository, ProductoRepository productoRepository) {
+    public VentaService(VentaRepository ventaRepository, ProductoRepository productoRepository, FacturaRepository facturaRepository) {
         this.ventaRepository = ventaRepository;
         this.productoRepository = productoRepository;
+        this.facturaRepository = facturaRepository;
     }
 
-    public VentaDTO crearVenta(CreateUpdateVentaDTO dto) {
-        // Crear la entidad Venta con el producto cargado desde el repo
-        Venta venta = generateVenta(dto);
-        venta.setFecha(LocalDateTime.now());
+    @Transactional
+    public VentaDTO crearVenta(VentaConFacturaDTO wrapperDto) {
+        System.out.println("DEBUG - Venta recibida: " + wrapperDto);
+
+        CreateUpdateVentaDTO ventaDto = wrapperDto.getVenta();
+        CreateFacturaDTO facturaDto = wrapperDto.getFactura();
+
+        Producto producto = productoRepository.findById(ventaDto.getProductoId())
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 
         // Validar stock
-        Producto producto = venta.getProducto();
-        if (producto.getStock() < venta.getCantidad()) {
+        if (producto.getStock() < ventaDto.getCantidad()) {
             throw new IllegalArgumentException("Stock insuficiente");
         }
 
-        // Actualizar stock
-        producto.setStock(producto.getStock() - venta.getCantidad());
+        // Crear factura
+        Factura factura = new Factura();
+
+        if (facturaDto != null) {
+            factura.setCliente(facturaDto.getCliente());
+            factura.setNumero(facturaDto.getNumero());
+            factura.setTotal(facturaDto.getTotal() != null
+                    ? facturaDto.getTotal()
+                    : ventaDto.getPrecioUnitario() * ventaDto.getCantidad());
+            factura.setIdClienteProv(facturaDto.getIdClienteProv() != null ? facturaDto.getIdClienteProv() : 0L);
+            factura.setTipoFactura(facturaDto.getTipoFactura() != null ? facturaDto.getTipoFactura() : "VENTA");
+            factura.setFormaPago(facturaDto.getFormaPago() != null ? facturaDto.getFormaPago() : "EFECTIVO");
+        } else {
+            factura.setCliente("Cliente desconocido");
+            factura.setNumero("FAC-" + System.currentTimeMillis());
+            factura.setTotal(ventaDto.getPrecioUnitario() * ventaDto.getCantidad());
+            factura.setIdClienteProv(0L);
+            factura.setTipoFactura("VENTA");
+            factura.setFormaPago("EFECTIVO");
+        }
+
+        factura.setEstado(EstadoFactura.VIGENTE);
+        factura.setFecha(LocalDateTime.now());
+
+        Factura facturaGuardada = facturaRepository.save(factura);
+
+        // Actualizar stock del producto
+        producto.setStock(producto.getStock() - ventaDto.getCantidad());
         productoRepository.save(producto);
+
+        // Crear venta
+        Venta venta = generateVenta(ventaDto);
+        venta.setFactura(facturaGuardada);
+        venta.setFecha(LocalDateTime.now());
 
         return new VentaDTO(ventaRepository.save(venta));
     }
-
-
     public List<VentaDTO> obtenerTodos() {
         return ventaRepository.findAll().stream().map(VentaDTO::new).collect(Collectors.toList());
     }
@@ -52,37 +92,27 @@ public class VentaService {
     }
 
     public VentaDTO actualizarVenta(Long id, CreateUpdateVentaDTO dto) {
-        Optional<Venta> ventaOptional = ventaRepository.findById(id);
-        if (ventaOptional.isEmpty()) {
-            return null;
-        }
+        Venta ventaExistente = ventaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Venta no encontrada"));
 
-        Venta ventaExistente = ventaOptional.get();
-
-        // Revertir stock del producto anterior
         Producto productoAnterior = ventaExistente.getProducto();
         productoAnterior.setStock(productoAnterior.getStock() + ventaExistente.getCantidad());
         productoRepository.save(productoAnterior);
 
-        // Generar nueva venta desde DTO
         Venta nuevaVenta = generateVenta(dto);
+        nuevaVenta.setId(id);
         nuevaVenta.setFecha(LocalDateTime.now());
-        // Validar stock del nuevo producto
+
         Producto nuevoProducto = nuevaVenta.getProducto();
         if (nuevoProducto.getStock() < nuevaVenta.getCantidad()) {
             throw new IllegalArgumentException("Stock insuficiente para realizar la venta");
         }
 
-        // Disminuir stock del nuevo producto
         nuevoProducto.setStock(nuevoProducto.getStock() - nuevaVenta.getCantidad());
         productoRepository.save(nuevoProducto);
 
-        // Reutilizar ID de la venta existente
-        nuevaVenta.setId(id);
-
         return new VentaDTO(ventaRepository.save(nuevaVenta));
     }
-
 
     public boolean eliminarVenta(Long id) {
         Optional<Venta> ventaOpt = ventaRepository.findById(id);
@@ -92,26 +122,30 @@ public class VentaService {
 
         Venta venta = ventaOpt.get();
         Producto producto = venta.getProducto();
-
-        // Revertir stock: sumar la cantidad de la venta al stock actual
         producto.setStock(producto.getStock() + venta.getCantidad());
         productoRepository.save(producto);
 
-        // Borrar la venta
         ventaRepository.deleteById(id);
-
         return true;
     }
 
-
     private Venta generateVenta(CreateUpdateVentaDTO dto) {
         Venta venta = new Venta();
-        venta.setCantidad(dto.getCantidad());
 
         Producto producto = productoRepository.findById(dto.getProductoId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
         venta.setProducto(producto);
-        venta.setMontoTotal(dto.getMontoTotal());
+
+        venta.setCantidad(dto.getCantidad());
+        venta.setPrecioUnitario(dto.getPrecioUnitario());
+
+        if (dto.getTotalPorArticulo() != null) {
+            venta.setTotalPorArticulo(dto.getTotalPorArticulo());
+        } else {
+            venta.setTotalPorArticulo(dto.getPrecioUnitario() * dto.getCantidad());
+        }
+
         return venta;
     }
+
 }

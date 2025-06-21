@@ -40,7 +40,7 @@ public class FacturaController {
 
         if (nuevaFactura == null) {
             String tipo = factura.getTipoFactura();
-            Long idClienteProv = factura.getidClienteProv();
+            Long idClienteProv = factura.getIdClienteProv();
             boolean existe;
 
             if ("COMPRA".equalsIgnoreCase(tipo)) {
@@ -96,7 +96,7 @@ public class FacturaController {
         if (factura == null) {
             boolean facturaExiste = facturaRepository.existsById(id);
             String tipo = facturaActualizada.getTipoFactura();
-            Long idClienteProv = facturaActualizada.getidClienteProv();
+            Long idClienteProv = facturaActualizada.getIdClienteProv();
             boolean existe;
 
             if (!facturaExiste) {

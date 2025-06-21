@@ -1,10 +1,15 @@
 package com.trabajo_practico.gestion_comercial.service;
 
+import com.trabajo_practico.gestion_comercial.dto.CompraConFacturaDTO;
 import com.trabajo_practico.gestion_comercial.dto.CompraDTO;
+import com.trabajo_practico.gestion_comercial.dto.CreateFacturaDTO;
 import com.trabajo_practico.gestion_comercial.dto.CreateUpdateCompraDTO;
 import com.trabajo_practico.gestion_comercial.model.Compra;
+import com.trabajo_practico.gestion_comercial.model.EstadoFactura;
+import com.trabajo_practico.gestion_comercial.model.Factura;
 import com.trabajo_practico.gestion_comercial.model.Producto;
 import com.trabajo_practico.gestion_comercial.repository.CompraRepository;
+import com.trabajo_practico.gestion_comercial.repository.FacturaRepository;
 import com.trabajo_practico.gestion_comercial.repository.ProductoRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,33 +17,65 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CompraService {
 
     private final CompraRepository compraRepository;
     private final ProductoRepository productoRepository;
+    private final FacturaRepository facturaRepository;
 
-    public CompraService(CompraRepository compraRepository, ProductoRepository productoRepository) {
+    public CompraService(CompraRepository compraRepository, ProductoRepository productoRepository, FacturaRepository facturaRepository) {
         this.compraRepository = compraRepository;
         this.productoRepository = productoRepository;
+        this.facturaRepository = facturaRepository;
     }
 
-    public CompraDTO crearCompra(CreateUpdateCompraDTO dto) {
-        // Buscar producto desde la base de datos
-        Producto producto = productoRepository.findById(dto.getProductoId())
+    @Transactional
+    public CompraDTO crearCompra(CompraConFacturaDTO wrapperDto) {
+        CreateUpdateCompraDTO compraDto = wrapperDto.getCompra();
+        CreateFacturaDTO facturaDto = wrapperDto.getFactura();
+
+        Producto producto = productoRepository.findById(compraDto.getProductoId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
 
-        // Actualizar stock del producto (sumar cantidad comprada)
-        producto.setStock(producto.getStock() + dto.getCantidad());
+        // --- Lógica para construir factura ---
+        Factura factura = new Factura();
+
+        if (facturaDto != null) {
+            factura.setCliente(facturaDto.getCliente());
+            factura.setTotal(facturaDto.getTotal() != null
+                    ? facturaDto.getTotal()
+                    : compraDto.getPrecioUnitario() * compraDto.getCantidad());
+            factura.setIdClienteProv(facturaDto.getIdClienteProv() != null ? facturaDto.getIdClienteProv() : 0L);
+            factura.setTipoFactura(facturaDto.getTipoFactura() != null ? facturaDto.getTipoFactura() : "COMPRA");
+            factura.setFormaPago(facturaDto.getFormaPago() != null ? facturaDto.getFormaPago() : "EFECTIVO");
+        } else {
+            factura.setCliente("Cliente desconocido");
+            factura.setTotal(compraDto.getPrecioUnitario() * compraDto.getCantidad());
+            factura.setIdClienteProv(0L);
+            factura.setTipoFactura("COMPRA");
+            factura.setFormaPago("EFECTIVO");
+        }
+
+        factura.setEstado(EstadoFactura.VIGENTE);
+        factura.setFecha(LocalDateTime.now());
+
+        Factura facturaGuardada = facturaRepository.save(factura);
+
+        // --- Stock ---
+        producto.setStock(producto.getStock() + compraDto.getCantidad());
         productoRepository.save(producto);
 
-        // Crear objeto Compra usando generateCompra
-        Compra compra = generateCompra(dto);
-        compra.setFecha(LocalDateTime.now()); //
+        // --- Crear compra ---
+        Compra compra = generateCompra(compraDto);
+        compra.setFactura(facturaGuardada);
+        compra.setFecha(LocalDateTime.now());
 
         return new CompraDTO(compraRepository.save(compra));
     }
+
 
 
     public List<CompraDTO> obtenerTodos() {
@@ -60,7 +97,7 @@ public class CompraService {
         productoAnterior.setStock(productoAnterior.getStock() - cantidadAnterior);
         productoRepository.save(productoAnterior);
 
-        // Generar nueva compra con generateCompra (ya busca y setea el producto)
+        // Generar nueva compra con generateCompra
         Compra compraActualizada = generateCompra(dto);
         compraActualizada.setId(id);
 
@@ -70,12 +107,10 @@ public class CompraService {
         nuevoProducto.setStock(nuevoProducto.getStock() + compraActualizada.getCantidad());
         productoRepository.save(nuevoProducto);
 
-        // Opcional: actualizar fecha
         compraActualizada.setFecha(LocalDateTime.now());
 
         return new CompraDTO(compraRepository.save(compraActualizada));
     }
-
 
     public boolean eliminarCompra(Long id) {
         var compraOpt = compraRepository.findById(id);
@@ -94,15 +129,23 @@ public class CompraService {
         return true;
     }
 
-
     private Compra generateCompra(CreateUpdateCompraDTO dto) {
         Compra compra = new Compra();
-        compra.setCantidad(dto.getCantidad());
 
         Producto producto = productoRepository.findById(dto.getProductoId())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
         compra.setProducto(producto);
-        compra.setMontoTotal(dto.getMontoTotal());
+
+        compra.setCantidad(dto.getCantidad());
+        compra.setPrecioUnitario(dto.getPrecioUnitario());
+
+        if (dto.getTotalPorArticulo() != null) {
+            compra.setTotalPorArticulo(dto.getTotalPorArticulo());
+        } else {
+            compra.setTotalPorArticulo(dto.getPrecioUnitario() * dto.getCantidad());
+        }
+
         return compra;
     }
+
 }
