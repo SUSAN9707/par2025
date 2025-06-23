@@ -76,6 +76,12 @@ const router = createRouter({
                     name: 'Movimientos Financieros',
                     component: () => import('@/views/reportes/ReporteFinanciero.vue'),
                     meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/compras',
+                    name: 'Reportes Compras',
+                    component: () => import('@/views/reportes/ReporteCompras.vue'),
+                    meta: { requiresAuth: true }
                 }
             ]
         }

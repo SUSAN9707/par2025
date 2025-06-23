@@ -11,3 +11,12 @@ export function getReporteMovimientos(mes, anio) {
 export function getReporteInventario() {
     return api.get('/reportes/inventario')
 }
+export function getReporteCompras(fechaInicio, fechaFin) {
+    return api.get(`/reportes/compras`, {
+        params: {
+            inicio: fechaInicio.toISOString(),
+            fin: fechaFin.toISOString()
+        }
+    });
+}
+

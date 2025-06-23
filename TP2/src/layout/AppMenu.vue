@@ -48,7 +48,8 @@ const model = ref([
         label: 'Reportes',
         to: '/reportes',
         items: [{label: 'Inventario de productos', icon: 'pi pi-tags', to: '/reportes/inventario-productos'},
-            {label: 'Movimientos financieros', icon: 'pi pi-chart-line', to: '/reportes/movimientos-financieros'}]
+            {label: 'Movimientos financieros', icon: 'pi pi-chart-line', to: '/reportes/movimientos-financieros'},
+            {label: 'Reporte Compras', icon: 'pi pi-chart-line', to: '/reportes/compras'}]
     }
 ]);
 </script>
