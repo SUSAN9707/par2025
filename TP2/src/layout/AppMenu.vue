@@ -47,11 +47,15 @@ const model = ref([
     }, {
         label: 'Reportes',
         to: '/reportes',
-        items: [{label: 'Inventario de productos', icon: 'pi pi-tags', to: '/reportes/inventario-productos'},
-            {label: 'Movimientos financieros', icon: 'pi pi-chart-line', to: '/reportes/movimientos-financieros'},
-            {label: 'Reporte Compras', icon: 'pi pi-chart-line', to: '/reportes/compras'},
-            {label: 'Reporte Ventas', icon: 'pi pi-chart-line', to: '/reportes/ventas'},
-            {label: 'Productos mas Vendidos', icon: 'pi pi-chart-line', to: '/reportes/productos-mas-vendidos'}
+        items: [
+            { label: 'Inventario de productos', icon: 'pi pi-tags', to: '/reportes/inventario-productos' },
+            { label: 'Movimientos financieros', icon: 'pi pi-wallet', to: '/reportes/movimientos-financieros' },
+            { label: 'Reporte Compras', icon: 'pi pi-shopping-cart', to: '/reportes/compras' },
+            { label: 'Reporte Ventas', icon: 'pi pi-dollar', to: '/reportes/ventas' },
+            { label: 'Productos más Vendidos', icon: 'pi pi-star', to: '/reportes/productos-mas-vendidos' },
+            { label: 'Top 15 Proveedores', icon: 'pi pi-truck', to: '/reportes/top-proveedores' },
+            { label: 'Top 15 Clientes', icon: 'pi pi-users', to: '/reportes/top-clientes' },
+            { label: 'Reporte de utilidades', icon: 'pi pi-chart-bar', to: '/reportes/utilidades' }
         ]
     }
 ]);
