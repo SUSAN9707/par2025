@@ -94,6 +94,24 @@ const router = createRouter({
                     name: 'Productos mas vendidos',
                     component: () => import('@/views/reportes/ProductosMasVendidos.vue'),
                     meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/top-proveedores',
+                    name: 'Top 15 proveedores',
+                    component: () => import('@/views/reportes/TopProveedores.vue'),
+                    meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/top-clientes',
+                    name: 'Top 15 clientes',
+                    component: () => import('@/views/reportes/TopClientes.vue'),
+                    meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/utilidades',
+                    name: 'Reporte de utilidades',
+                    component: () => import('@/views/reportes/ReporteUtilidades.vue'),
+                    meta: { requiresAuth: true }
                 }
             ]
         }

@@ -37,3 +37,27 @@ export function getProductosMasVendidos(fechaInicio, fechaFin) {
         }
     });
 }
+export function getTopProveedores(fechaInicio, fechaFin) {
+    return api.get(`/reportes/top-proveedores`, {
+        params: {
+            inicio: fechaInicio.toISOString(),
+            fin: fechaFin.toISOString()
+        }
+    });
+}
+export function getTopClientes(fechaInicio, fechaFin) {
+    return api.get(`/reportes/top-clientes`, {
+        params: {
+            inicio: fechaInicio.toISOString(),
+            fin: fechaFin.toISOString()
+        }
+    });
+}
+export function getReporteUtilidad(fechaInicio, fechaFin) {
+    return api.get(`/reportes/utilidades`, {
+        params: {
+            inicio: fechaInicio.toISOString(),
+            fin: fechaFin.toISOString()
+        }
+    });
+}

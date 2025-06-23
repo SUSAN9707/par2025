@@ -114,25 +114,32 @@ function exportarPDF() {
             </Toolbar>
 
             <div class="p-4">
-                <DataTable :value="reporte" responsiveLayout="scroll">
-                    <Column field="producto" header="Producto" />
-                    <Column field="cantidad" header="Cantidad" />
-                    <Column field="precioUnitario" header="Precio Unitario">
-                        <template #body="{ data }">
-                            {{ formatPrecio(data.precioUnitario) }}
-                        </template>
-                    </Column>
-                    <Column field="total" header="Total">
-                        <template #body="{ data }">
-                            {{ formatPrecio(data.total) }}
-                        </template>
-                    </Column>
-                    <Column field="fecha" header="Fecha">
-                        <template #body="{ data }">
-                            {{ new Date(data.fecha).toLocaleDateString() }}
-                        </template>
-                    </Column>
-                </DataTable>
+                <template v-if="reporte.length">
+                    <DataTable :value="reporte" responsiveLayout="scroll">
+                        <Column field="producto" header="Producto" />
+                        <Column field="cantidad" header="Cantidad" />
+                        <Column field="precioUnitario" header="Precio Unitario">
+                            <template #body="{ data }">
+                                {{ formatPrecio(data.precioUnitario) }}
+                            </template>
+                        </Column>
+                        <Column field="total" header="Total">
+                            <template #body="{ data }">
+                                {{ formatPrecio(data.total) }}
+                            </template>
+                        </Column>
+                        <Column field="fecha" header="Fecha">
+                            <template #body="{ data }">
+                                {{ new Date(data.fecha).toLocaleDateString() }}
+                            </template>
+                        </Column>
+                    </DataTable>
+                </template>
+                <template v-else>
+                    <p class="text-center italic text-gray-500 mt-4">
+                        No hay resultados para mostrar en este rango de fechas.
+                    </p>
+                </template>
             </div>
         </div>
     </div>
