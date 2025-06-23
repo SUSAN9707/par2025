@@ -13,6 +13,7 @@ const dt = ref()
 const submitted = ref(false)
 const ventas = ref([])
 const productos = ref([])
+const productosNombres = ref([])
 const productoSeleccionado = ref(null);
 
 const venta = ref({
@@ -67,6 +68,7 @@ async function cargarProductos() {
     try {
         const response = await getProductos();
         productos.value = response.data.data.filter(p => p.stock !== 0); // lista de clientes
+        productosNombres.value= response.data.data
     } catch (error) {
         toast.add({
             severity: 'error',
@@ -238,7 +240,7 @@ function formatPrecio(valor) {
                 <Column header="Producto" sortable style="min-width: 12rem">
                     <template #body="slotProps">
                         {{
-                            productos.find(p => p.id === slotProps.data.productoId)?.nombre || 'Desconocido'
+                            productosNombres.find(p => p.id === slotProps.data.productoId)?.nombre || 'Desconocido'
                         }}
                     </template>
                 </Column>

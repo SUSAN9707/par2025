@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @RestController
@@ -53,10 +54,12 @@ public class ReporteControllerG {
     }
     @GetMapping("/productos-mas-vendidos")
     public ResponseEntity<ApiResponse<List<ProductoMasVendidoDTO>>> getProductosMasVendidos(
-            @RequestParam LocalDateTime inicio,
-            @RequestParam LocalDateTime fin
+            @RequestParam("inicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime inicio,
+            @RequestParam("fin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime fin
     ) {
-        List<ProductoMasVendidoDTO> resultado = reporteService.obtenerProductosMasVendidos(inicio, fin);
+        LocalDateTime inicioNuevo = inicio.toLocalDateTime();
+        LocalDateTime finNuevo = fin.toLocalDateTime();
+        List<ProductoMasVendidoDTO> resultado = reporteService.obtenerProductosMasVendidos(inicioNuevo, finNuevo);
         return ResponseEntity.ok(new ApiResponse("Reporte de productos mas vendidos generado", HttpStatus.OK.value(),resultado));
     }
     @GetMapping("/top-clientes")

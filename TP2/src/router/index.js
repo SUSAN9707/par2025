@@ -82,6 +82,18 @@ const router = createRouter({
                     name: 'Reportes Compras',
                     component: () => import('@/views/reportes/ReporteCompras.vue'),
                     meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/ventas',
+                    name: 'Reportes Ventas',
+                    component: () => import('@/views/reportes/ReporteVentas.vue'),
+                    meta: { requiresAuth: true }
+                },
+                {
+                    path: 'reportes/productos-mas-vendidos',
+                    name: 'Productos mas vendidos',
+                    component: () => import('@/views/reportes/ProductosMasVendidos.vue'),
+                    meta: { requiresAuth: true }
                 }
             ]
         }

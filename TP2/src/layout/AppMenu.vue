@@ -49,7 +49,10 @@ const model = ref([
         to: '/reportes',
         items: [{label: 'Inventario de productos', icon: 'pi pi-tags', to: '/reportes/inventario-productos'},
             {label: 'Movimientos financieros', icon: 'pi pi-chart-line', to: '/reportes/movimientos-financieros'},
-            {label: 'Reporte Compras', icon: 'pi pi-chart-line', to: '/reportes/compras'}]
+            {label: 'Reporte Compras', icon: 'pi pi-chart-line', to: '/reportes/compras'},
+            {label: 'Reporte Ventas', icon: 'pi pi-chart-line', to: '/reportes/ventas'},
+            {label: 'Productos mas Vendidos', icon: 'pi pi-chart-line', to: '/reportes/productos-mas-vendidos'}
+        ]
     }
 ]);
 </script>

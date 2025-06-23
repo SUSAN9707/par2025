@@ -20,3 +20,20 @@ export function getReporteCompras(fechaInicio, fechaFin) {
     });
 }
 
+export function getReporteVentas(fechaInicio, fechaFin) {
+    return api.get(`/reportes/ventas`, {
+        params: {
+            inicio: fechaInicio.toISOString(),
+            fin: fechaFin.toISOString()
+        }
+    });
+}
+
+export function getProductosMasVendidos(fechaInicio, fechaFin) {
+    return api.get(`/reportes/productos-mas-vendidos`, {
+        params: {
+            inicio: fechaInicio.toISOString(),
+            fin: fechaFin.toISOString()
+        }
+    });
+}
