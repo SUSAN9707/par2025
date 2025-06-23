@@ -5,9 +5,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CompraRepository extends JpaRepository<Compra, Long> {
     @Query("SELECT c FROM Compra c WHERE MONTH(c.fecha) = :mes AND YEAR(c.fecha) = :anio")
     List<Compra> findByMesYAnio(@Param("mes") int mes, @Param("anio") int anio);
+
+    List<Compra> findByFechaBetween(LocalDateTime inicio, LocalDateTime fin);
+
 }
