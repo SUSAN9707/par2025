@@ -27,5 +27,5 @@ export function eliminarFactura(id) {
 }
 
 export function anularFactura(id) {
-    return api.delete(`/facturas/${id}/anular`)
+    return api.put(`/facturas/${id}/anular`)
 }

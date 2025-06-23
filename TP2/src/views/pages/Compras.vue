@@ -218,7 +218,7 @@ function formatFecha(fechaISO) {
                 <Column field="cantidad" header="Cantidad" sortable />
                 <Column field="montoTotal" header="Monto Total" sortable>
                     <template #body="slotProps">
-                         {{ formatPrecio(slotProps.data.montoTotal) }}
+                         {{ formatPrecio(slotProps.data.totalPorArticulo) }}
                     </template>
                 </Column>
                 <Column field="fecha" header="Fecha" sortable style="min-width: 14rem">
@@ -268,10 +268,10 @@ function formatFecha(fechaISO) {
                     />
                 </div>
                 <div class="field" v-if="productoSeleccionado">
-                    <label for="montoTotal">Monto total:</label>
+                    <label for="totalPorArticulo">Monto total:</label>
                     <InputNumber
-                        id="montoTotal"
-                        v-model="compra.montoTotal"
+                        id="totalPorArticulo"
+                        v-model="compra.totalPorArticulo"
                         class="w-full"
                         prefix="Gs. "
                         :minFractionDigits="0"

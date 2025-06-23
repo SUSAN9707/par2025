@@ -19,7 +19,7 @@ const venta = ref({
     id: null,
     productoId: '',
     cantidad: 1,
-    montoTotal:0
+    totalPorArticulo:0
 })
 
 const toast = useToast()
@@ -57,7 +57,7 @@ function openNew() {
         id: null,
         productoId: '',
         cantidad: 1,
-        montoTotal:0
+        totalPorArticulo:0
     }
     productoSeleccionado.value=null
     submitted.value = false
@@ -102,7 +102,7 @@ function deleteVenta() {
             cargarVentas()
             cargarProductos()
             venta.value = { id: null, productoId: '', cantidad: 1,
-                montoTotal:0 }
+                totalPorArticulo:0 }
         })
         .catch(error => {
             toast.add({
@@ -124,13 +124,13 @@ function saveVenta() {
 
     if (!isFormInvalid.value) {
         if (productoSeleccionado.value && venta.value.cantidad) {
-            venta.value.montoTotal = productoSeleccionado.value.precio * venta.value.cantidad;
+            venta.value.totalPorArticulo = productoSeleccionado.value.precio * venta.value.cantidad;
         }
         if (venta.value.id) {
             const ventaParaActualizar= {
                 productoId: venta.value.productoId,
                 cantidad: venta.value.cantidad,
-                montoTotal:venta.value.montoTotal
+                totalPorArticulo:venta.value.totalPorArticulo
             };
 
             actualizarVenta(venta.value.id, ventaParaActualizar)
@@ -156,7 +156,7 @@ function saveVenta() {
             const ventaParaGuardar = {
                 productoId: venta.value.productoId,
                 cantidad: venta.value.cantidad,
-                montoTotal:venta.value.montoTotal
+                totalPorArticulo:venta.value.totalPorArticulo
             };
             console.log(ventaParaGuardar)
             crearVenta(ventaParaGuardar)
@@ -181,14 +181,14 @@ function saveVenta() {
         }
         ventaDialog.value = false
         venta.value = { id: null, productoId: '', cantidad: 1,
-            montoTotal:0 }
+            totalPorArticulo:0 }
     }
 }
 watchEffect(() => {
     if (productoSeleccionado.value && venta.value.cantidad) {
-        venta.value.montoTotal = productoSeleccionado.value.precio * venta.value.cantidad;
+        venta.value.totalPorArticulo = productoSeleccionado.value.precio * venta.value.cantidad;
     } else {
-        venta.value.montoTotal = 0;
+        venta.value.totalPorArticulo = 0;
     }
 })
 function formatFecha(fechaISO) {
@@ -244,9 +244,9 @@ function formatPrecio(valor) {
                 </Column>
 
                 <Column field="cantidad" header="Cantidad" sortable style="min-width: 10rem" />
-                <Column field="montoTotal" header="montoTotal Total" sortable style="min-width: 12rem">
+                <Column field="totalPorArticulo" header="totalPorArticulo Total" sortable style="min-width: 12rem">
                     <template #body="slotProps">
-                        Gs. {{ formatPrecio(slotProps.data.montoTotal) }}
+                        Gs. {{ formatPrecio(slotProps.data.totalPorArticulo) }}
                     </template>
                 </Column>
 
@@ -309,10 +309,10 @@ function formatPrecio(valor) {
                 </div>
 
                 <div class="field" v-if="productoSeleccionado">
-                    <label for="montoTotal" class="block mb-2 font-bold">Monto total:</label>
+                    <label for="totalPorArticulo" class="block mb-2 font-bold">Monto total:</label>
                     <InputNumber
-                        id="montoTotal"
-                        v-model="venta.montoTotal"
+                        id="totalPorArticulo"
+                        v-model="venta.totalPorArticulo"
                         class="w-full"
                         prefix="Gs. "
                         :minFractionDigits="0"

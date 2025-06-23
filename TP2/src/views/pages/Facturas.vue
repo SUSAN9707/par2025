@@ -1,175 +1,208 @@
 <script setup>
-import {ref, onMounted, computed, watch} from 'vue';
-
+import {ref, onMounted, watch, computed} from 'vue';
 import { useToast } from "primevue/usetoast";
-import {anularFactura, crearFactura, getFacturas} from "@/service/facturas.service";
-import {getClientes} from "@/service/cliente.service";
-
-const dt = ref();
-const submitted = ref(false);
-const facturas = ref([]);
-const clientes = ref([]);
-const clienteSeleccionado = ref(null);
-const factura = ref({
-    id: null,
-    numero: '',
-    total: null,
-    idClienteProv: null,  // cliente o proveedor según tipoFactura
-    tipoFactura: '',      // 'COMPRA' o 'VENTA'
-    estado: 'VIGENTE',     // estado inicial por defecto,
-    referencias:[]
-});
+import { crearFactura, getFacturas ,anularFactura} from "@/service/facturas.service";
+import { getProveedores } from "@/service/proveedor.service";
+import { getClientes } from "@/service/cliente.service";
+import { getProductos } from "@/service/producto.service";
 
 const toast = useToast();
-async function cargarClientes() {
-    try {
-        const response = await getClientes();
-        clientes.value = response.data.data; // lista de clientes
-    } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.response?.data?.mensaje || 'Error al cargar clientes',
-            life: 3000
-        });
-        facturaDialog.value=false
-    }
-}
-async function cargarFacturas() {
-    try {
-        const response = await getFacturas();
-        facturas.value = response.data.data;
-        console.log(factura.value.numero)
-        toast.add({
-            severity: 'success',
-            summary: 'Éxito',
-            detail: response.data.mensaje || 'Facturas cargadas',
-            life: 3000
-        });
-    } catch (error) {
-        toast.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: error.response?.data?.mensaje || 'Error al cargar facturas',
-            life: 3000
-        });
-    }
-}
+const facturas = ref([]);
+const proveedores = ref([]);
+const clientes = ref([]);
+const productos = ref([]);
+const proveedorSeleccionado = ref(null);
+const clienteSeleccionado = ref(null);
+const productoSeleccionado = ref(null);
+const productosAgregados = ref([]);
 
+const tipoFacturaSeleccionado = ref(null);
 const facturaDialog = ref(false);
 const deleteFacturaDialog = ref(false);
+const facturaSeleccionada = ref(null);
+
+const factura = ref({
+    numero: '',
+    total: 0,
+    tipoFactura: 'COMPRA',
+    idClienteProv: null,
+    formaPago: 'EFECTIVO',
+});
+const tiposFactura =ref( [
+    { label: 'Compra', value: 'COMPRA' },
+    { label: 'Venta', value: 'VENTA' }
+]);
+
+const formasPago = ref([
+    { label: 'Efectivo', value: 'EFECTIVO' },
+    { label: 'Crédito', value: 'CREDITO' },
+    { label: 'Débito', value: 'DEBITO' }
+]);
+
+watch(tipoFacturaSeleccionado, async (nuevo) => {
+    if (nuevo === 'COMPRA') {
+        const response = await getProveedores();
+        proveedores.value = response.data.data;
+    } else if (nuevo === 'VENTA') {
+        const response = await getClientes();
+        clientes.value = response.data.data;
+    }
+});
 
 onMounted(() => {
     cargarFacturas();
 });
 
+async function cargarFacturas() {
+    try {
+        const response = await getFacturas();
+        facturas.value = response.data.data;
+    } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Error al cargar facturas', life: 3000 });
+    }
+}
+
+async function cargarProductos() {
+    const res = await getProductos();
+    // Solo mostrar productos con stock > 0
+    productos.value = res.data.data.filter(p => p.stock > 0);
+}
+
+
 function openNew() {
-    factura.value = { id: null,
-        numero: '',
-        total: null,
-        idClienteProv: null,  // cliente o proveedor según tipoFactura
-        tipoFactura: '',      // 'COMPRA' o 'VENTA'
-        estado: 'VIGENTE',
-        referencias:[]};
-    factura.value.numero = generarNumero();
-    clienteSeleccionado.value = null; // limpiar selección
-    submitted.value = false;
+    factura.value = {
+        numero: generarNumero(),
+        total: 0,
+        tipoFactura: 'COMPRA',
+        idClienteProv: null,
+        formaPago: 'EFECTIVO',
+    };
+    proveedorSeleccionado.value = null;
+    clienteSeleccionado.value = null;
+    productoSeleccionado.value = null;
+    productosAgregados.value = [];
+    tipoFacturaSeleccionado.value = 'COMPRA';
     facturaDialog.value = true;
-    cargarClientes();
+    cargarProductos();
 }
-watch(clienteSeleccionado, (nuevo) => {
-    factura.value.idCliente = nuevo ? nuevo.id : null;
-});
-
-
-function anular(fac) {
-    factura.value = { ...fac };
-    deleteFacturaDialog.value = true;
+function formatPrecio(valor) {
+    return new Intl.NumberFormat('es-PY', {
+        style: 'currency',
+        currency: 'PYG',
+        minimumFractionDigits: 0
+    }).format(valor);
 }
+function agregarProducto() {
+    if (!productoSeleccionado.value) return;
 
-function confirmarAnular() {
-    anularFactura(factura.value.id)
-        .then(response => {
-            deleteFacturaDialog.value = false;
-            toast.add({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: response.data.mensaje,
-                life: 3000
-            });
-            cargarFacturas();
-            factura.value = { id: null, numero: '', total: null, idCliente: null };
-        })
-        .catch(error => {
-            toast.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: error.response?.data?.mensaje || 'Error al anular factura',
-                life: 3000
-            });
-        });
-}
-
-const isFormInvalid = computed(() => {
-    return !factura.value.numero.trim() ||
-        factura.value.total === null || factura.value.total <= 0 ||
-        factura.value.idCliente === null||clienteSeleccionado.value===null;
-});
-function generarNumero(){
-    if (facturas.value.length === 0) {
-        return 'F-0001';
+    const yaAgregado = productosAgregados.value.find(p => p.productoId === productoSeleccionado.value.id);
+    if (yaAgregado) {
+        toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Producto ya agregado', life: 2500 });
+        return;
     }
 
-    // Buscar el número más alto
-    const numeros = facturas.value
-        .map(f => f.numero)
-        .filter(num => /^F-\d+$/.test(num)) // aseguramos formato correcto
-        .map(num => parseInt(num.split('-')[1])) // nos quedamos con el número
-
-    const maxNumero = Math.max(...numeros);
-    const siguiente = maxNumero + 1;
-
-    // Formateamos con ceros a la izquierda (mínimo 4 dígitos)
-    const numeroFormateado = siguiente.toString().padStart(4, '0');
-
-    return `F-${numeroFormateado}`;
+    const nuevo = {
+        productoId: productoSeleccionado.value.id,
+        cantidad: 1,
+        precioUnitario: productoSeleccionado.value.precio,
+        totalPorArticulo: productoSeleccionado.value.precio,
+        nombre: productoSeleccionado.value.nombre, // nuevo campo
+    };
+    productosAgregados.value.push(nuevo);
+    actualizarTotal();
 }
-async function saveFactura() {
+async function anularFacturaConfirmada() {
     try {
-        const facturaBody = {
-            cliente:clienteSeleccionado.value?.nombre+' '+clienteSeleccionado.value?.apellido,
-            numero: factura.value.numero === '' ? generarNumero() : factura.value.numero,
-            total: factura.value.total,
-            idCliente:  clienteSeleccionado.value?.id ?? null,
-            //FALTA estado y tipo factura
-            referencias: []
-        }
-            crearFactura(facturaBody)
-                .then(response => {
-                    toast.add({
-                        severity: 'success',
-                        summary: 'Éxito',
-                        detail: response.data.mensaje,
-                        life: 3000
-                    });
-                    cargarFacturas();
-                })
-                .catch(error => {
-                    toast.add({
-                        severity: 'error',
-                        summary: 'Error',
-                        detail: error.response?.data?.mensaje || 'Error al crear factura',
-                        life: 3000
-                    });
-                });
+        await anularFactura(facturaSeleccionada.value.id);
+        toast.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Factura anulada correctamente',
+            life: 3000
+        });
 
-        facturaDialog.value = false;
-        factura.value = { id: null, numero: '', total: null, idCliente: null };
+        deleteFacturaDialog.value = false;
+        facturaSeleccionada.value = null;
+
+        const response = await getFacturas();
+        facturas.value = response.data.data;
+
     } catch (error) {
         toast.add({
             severity: 'error',
             summary: 'Error',
-            detail: error.response?.data?.mensaje || 'Error al guardar factura',
+            detail: error.response?.data?.mensaje || 'Error al anular la factura',
+            life: 3000
+        });
+    }
+}
+
+function eliminarProducto(index) {
+    productosAgregados.value.splice(index, 1);
+    actualizarTotal();
+}
+function confirmarAnularFactura(factura) {
+    facturaSeleccionada.value = factura;
+    deleteFacturaDialog.value = true;
+}
+
+function actualizarTotal() {
+    factura.value.total = productosAgregados.value.reduce((acc, p) => acc + (p.precioUnitario * p.cantidad), 0);
+}
+const formularioInvalido = computed(() => {
+    const sinProveedor = tipoFacturaSeleccionado.value === 'COMPRA' && !proveedorSeleccionado.value;
+    const sinCliente = tipoFacturaSeleccionado.value === 'VENTA' && !clienteSeleccionado.value;
+    const sinProductos = productosAgregados.value.length === 0;
+    const sinFormaPago = !factura.value.formaPago;
+    const sinTipoFactura = !tipoFacturaSeleccionado.value;
+    const sinNumero = !factura.value.numero || factura.value.numero.trim() === '';
+    const totalInvalido = !factura.value.total || factura.value.total <= 0;
+
+    return (
+        sinProveedor ||
+        sinCliente ||
+        sinProductos ||
+        sinFormaPago ||
+        sinTipoFactura ||
+        sinNumero ||
+        totalInvalido
+    );
+});
+
+function generarNumero() {
+    const numeros = facturas.value
+        .map(f => f.numero)
+        .filter(num => /^F-\d+$/.test(num))
+        .map(num => parseInt(num.split('-')[1]));
+
+    const siguiente = Math.max(0, ...numeros) + 1;
+    return `F-${siguiente.toString().padStart(4, '0')}`;
+}
+
+async function saveFactura() {
+    try {
+        const cuerpo = {
+            numero: factura.value.numero || generarNumero(),
+            total: factura.value.total,
+            idClienteProv:
+                tipoFacturaSeleccionado.value === 'COMPRA'
+                    ? proveedorSeleccionado.value?.id ?? null
+                    : clienteSeleccionado.value?.id ?? null,
+            tipoFactura: tipoFacturaSeleccionado.value,
+            formaPago: factura.value.formaPago,
+            compras: tipoFacturaSeleccionado.value === 'COMPRA' ? productosAgregados.value : [],
+            ventas: tipoFacturaSeleccionado.value === 'VENTA' ? productosAgregados.value : []
+        };
+
+        await crearFactura(cuerpo);
+        toast.add({ severity: 'success', summary: 'Éxito', detail: 'Factura creada exitosamente', life: 3000 });
+        facturaDialog.value = false;
+        cargarFacturas();
+    } catch (error) {
+        toast.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: error.response?.data?.mensaje || 'Error al crear factura',
             life: 3000
         });
     }
@@ -188,58 +221,73 @@ async function saveFactura() {
                 </template>
             </Toolbar>
 
-            <DataTable
-                ref="dt"
-                :value="facturas"
-                dataKey="id"
-            >
+            <DataTable ref="dt" :value="facturas" dataKey="id">
                 <Column field="id" header="ID" sortable style="min-width: 6rem" />
-                <Column field="numero" header="Número" sortable style="min-width: 12rem" />
-                <Column field="total" header="Total" sortable style="min-width: 12rem" />
-                <Column field="idClienteProv" header="ID Cliente/Proveedor" sortable style="min-width: 14rem" />
-                <Column field="tipoFactura" header="Tipo Factura" sortable style="min-width: 12rem" />
-                <Column field="estado" header="Estado" sortable style="min-width: 10rem">
+                <Column field="numero" header="Número" sortable style="min-width: 10rem" />
+                <Column header="Total" style="min-width: 10rem">
                     <template #body="slotProps">
-                        <span
-                            :class="{
-                            'estado-vigente': slotProps.data.estado === 'VIGENTE',
-                            'estado-anulada': slotProps.data.estado === 'ANULADA'
-                          }"
-                        >
-                          {{ slotProps.data.estado }}
-                        </span>
+                        {{ formatPrecio(slotProps.data.total) }}
                     </template>
                 </Column>
-
+                <Column field="idClienteProv" header="ID Cliente/Proveedor" sortable style="min-width: 14rem" />
+                <Column field="tipoFactura" header="Tipo Factura" sortable style="min-width: 12rem" />
+                <Column field="estado" header="Estado" sortable style="min-width: 10rem" />
+                <Column field="fecha" header="Fecha" sortable style="min-width: 14rem">
+                    <template #body="slotProps">
+                        {{ new Date(slotProps.data.fecha).toLocaleString() }}
+                    </template>
+                </Column>
+                <Column field="formaPago" header="Forma de Pago" sortable style="min-width: 12rem" />
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Button icon="pi pi-times" outlined rounded severity="danger" @click="anular(slotProps.data)" />
+                        <Button
+                            v-if="slotProps.data.estado !== 'ANULADA'"
+                            icon="pi pi-times"
+                            outlined
+                            rounded
+                            severity="danger"
+                            @click="confirmarAnularFactura(slotProps.data)"
+                            title="Anular factura"
+                        />
+
                     </template>
                 </Column>
             </DataTable>
 
         </div>
+        <Dialog v-model:visible="deleteFacturaDialog" header="Confirmar" modal :closable="false" :style="{ width: '350px' }">
+            <div class="confirmation-content">
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
+                <span>¿Está seguro que desea anular la factura <b>{{ facturaSeleccionada.numero }}</b>?</span>
+            </div>
 
-        <Dialog v-model:visible="facturaDialog" header="Factura" modal :closable="false" :style="{ width: '450px' }">
+            <template #footer>
+                <Button label="No" icon="pi pi-times" outlined @click="deleteFacturaDialog = false" />
+                <Button label="Sí" icon="pi pi-check" severity="danger" @click="anularFacturaConfirmada" />
+            </template>
+        </Dialog>
+
+        <Dialog  :style="{ width: '75vw' }" v-model:visible="facturaDialog" header="Nueva Factura" modal>
             <div class="p-fluid">
-                <div class="field" >
-                    <label for="numero" class="block mb-2 font-bold">Número:</label>
-                    <InputText id="numero" v-model="factura.numero" class="w-full" disabled />
-                </div>
-                <div class="field">
-                    <label for="total" class="block mb-2 font-bold">Total:</label>
-                    <InputNumber
-                        id="total"
-                        v-model="factura.total"
-                        class="w-full"
-                        prefix="Gs. "
-                        :minFractionDigits="0"
-                        :maxFractionDigits="0"
-                    />
-                </div>
-                <div class="field">
-                    <label for="idCliente" class="block mb-2 font-bold">Cliente (RUC):</label>
+                <label class="block mb-2 font-bold">Número:</label>
+                <InputText class="w-full" v-model="factura.numero" disabled />
 
+                <div class="field mt-3">
+                    <label class="block mb-2 font-bold">Tipo de Factura:</label>
+                    <Dropdown
+                        v-model="tipoFacturaSeleccionado"
+                        :options="tiposFactura"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Seleccionar tipo"
+                        class="w-full mb-5"
+                    />
+
+                </div>
+
+
+                <div class="field" v-if="tipoFacturaSeleccionado === 'VENTA'">
+                    <label for="idCliente" class="block mb-2 font-bold">Cliente (RUC):</label>
                     <Dropdown
                         id="idCliente"
                         v-model="clienteSeleccionado"
@@ -249,69 +297,94 @@ async function saveFactura() {
                         filter
                         filterBy="ruc"
                         placeholder="Seleccione un cliente"
-                        class="w-full mb-2"
+                        class="w-full mb-5"
                     />
+                </div>
 
-                    <div class="flex justify-end">
-                        <Button
-                            label="Limpiar"
-                            icon="pi pi-trash"
-                            iconPos="right"
-                            class="p-button-secondary"
-                            @click="clienteSeleccionado = null"
-                            :disabled="!clienteSeleccionado"
-                            title="Limpiar selección"
-                        />
+                <div class="field" v-if="tipoFacturaSeleccionado === 'COMPRA'">
+                    <label for="idProveedor" class="block mb-2 font-bold">Proveedor (RUC):</label>
+                    <Dropdown
+                        id="idProveedor"
+                        v-model="proveedorSeleccionado"
+                        :options="proveedores"
+                        optionLabel="ruc"
+                        :optionValue="proveedor => proveedor"
+                        filter
+                        filterBy="ruc"
+                        placeholder="Seleccione un proveedor"
+                        class="w-full mb-5"
+                    />
+                </div>
+
+                <label class="block mb-2 font-bold">Forma de Pago:</label>
+                <Dropdown
+                    v-model="factura.formaPago"
+                    :options="formasPago"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Seleccione forma de pago"
+                    class="w-full mb-5"
+                />
+                <label class="block mb-2 font-bold">Agregar Producto:</label>
+                <div class="field w-full">
+                    <div class="flex items-center gap-3">
+                        <Dropdown class="w-2/3" v-model="productoSeleccionado" :options="productos" optionLabel="nombre" placeholder="Seleccionar producto" />
+                        <Button class="w-1/4" label="Agregar" icon="pi pi-plus" @click="agregarProducto" />
                     </div>
                 </div>
 
 
-                <div class="field" v-if="clienteSeleccionado">
-                    <label class="block mb-2 font-bold">Cliente Seleccionado:</label>
-                    <InputText :value="clienteSeleccionado.nombre + ' ' + clienteSeleccionado.apellido" disabled class="w-full" />
+                <div class="w-full mt-5" v-if="productosAgregados.length">
+                    <h4>Productos agregados:</h4>
+                    <ul>
+                        <li v-for="(prod, idx) in productosAgregados" :key="prod.productoId">
+                            <strong>{{ prod.nombre }}</strong> -
+                            Cant:
+                            <InputNumber
+                                v-model="prod.cantidad"
+                                :min="1"
+                                :step="1"
+                                showButtons
+                                buttonLayout="horizontal"
+                                incrementButtonIcon="pi pi-plus"
+                                decrementButtonIcon="pi pi-minus"
+                                @update:modelValue="() => {
+                                    prod.totalPorArticulo = prod.cantidad * prod.precioUnitario;
+                                    actualizarTotal();
+                                  }"
+                            />
+                            - Precio:
+                            <InputNumber disabled
+                                         v-model="prod.precioUnitario"
+                                         @update:modelValue="() => {
+                                            prod.totalPorArticulo = prod.cantidad * prod.precioUnitario;
+                                            actualizarTotal();
+                                          }"
+                            />
+                            - Total: {{ prod.totalPorArticulo.toLocaleString() }}
+                            <Button icon="pi pi-times" @click="eliminarProducto(idx)" severity="danger" text />
+                        </li>
+                    </ul>
+
+                </div>
+                <label class="block mb-2 mt-2 font-bold">Total:</label>
+                <InputNumber class="w-full" v-model="factura.total" :disabled="true" />
+
+                <div class="mt-3 flex justify-end">
+                    <Button :disabled="formularioInvalido" label="Guardar" icon="pi pi-check" @click="saveFactura" />
+                    <Button label="Cancelar" icon="pi pi-times" severity="secondary" class="ml-2" @click="facturaDialog = false" />
                 </div>
             </div>
-
-            <template #footer>
-                <Button label="Cancelar" icon="pi pi-times" outlined @click="facturaDialog = false" />
-                <Button label="Guardar" icon="pi pi-check" :disabled="isFormInvalid" @click="saveFactura" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteFacturaDialog" header="Confirmar" modal :closable="false" :style="{ width: '350px' }">
-            <div class="confirmation-content">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem;"></i>
-                <span>¿Está seguro que desea anular la factura <b>{{ factura.numero }}</b>?</span>
-            </div>
-
-            <template #footer>
-                <Button label="No" icon="pi pi-times" outlined @click="deleteFacturaDialog = false" />
-                <Button label="Sí" icon="pi pi-check" severity="danger" @click="confirmarAnular" />
-            </template>
         </Dialog>
     </div>
 </template>
 
 <style scoped>
-.field {
-    margin-bottom: 1rem;
+ul {
+    list-style: none;
+    padding: 0;
 }
-.estado-vigente {
-    color: #155724;
-    background-color: rgba(40, 167, 69, 0.5); /* verde con 50% opacidad */
-    border: 1px solid #28a745;
-    border-radius: 8px;
-    padding: 2px 8px;
-    font-weight: bold;
+li {
+    margin-bottom: 0.75rem;
 }
-
-.estado-anulada {
-    color: #721c24;
-    background-color: rgba(220, 53, 69, 0.5); /* rojo con 50% opacidad */
-    border: 1px solid #dc3545;
-    border-radius: 8px;
-    padding: 2px 8px;
-    font-weight: bold;
-}
-
 </style>
