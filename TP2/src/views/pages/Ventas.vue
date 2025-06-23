@@ -227,9 +227,7 @@ function formatPrecio(valor) {
     <div>
         <div class="card">
             <Toolbar class="mb-6">
-                <template #start>
-                    <Button label="Nueva venta" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                </template>
+
                 <template #end>
                     <Button label="Exportar" icon="pi pi-upload" severity="secondary" @click="dt.exportCSV()" />
                 </template>
@@ -257,12 +255,7 @@ function formatPrecio(valor) {
                         {{ formatFecha(slotProps.data.fecha) }}
                     </template>
                 </Column>
-                <Column :exportable="false" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editVenta(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteVenta(slotProps.data)" />
-                    </template>
-                </Column>
+                
             </DataTable>
         </div>
 

@@ -18,9 +18,8 @@ api.interceptors.response.use(
     response => response,
     error => {
         if (error.response && error.response.status === 401) {
-            // Aquí borramos token y redirigimos
             localStorage.removeItem('token')
-            router.push('auth/login')
+            router.replace({ name: 'Login' }) // o por nombre: router.replace({ name: 'Login' })
         }
         return Promise.reject(error)
     }

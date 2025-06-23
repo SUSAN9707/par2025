@@ -200,9 +200,7 @@ function formatFecha(fechaISO) {
     <div>
         <div class="card">
             <Toolbar class="mb-6">
-                <template #start>
-                    <Button label="Nueva compra" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
-                </template>
+
                 <template #end>
                     <Button label="Exportar" icon="pi pi-upload" severity="secondary" @click="dt.exportCSV()" />
                 </template>
@@ -227,12 +225,7 @@ function formatFecha(fechaISO) {
                     </template>
                 </Column>
 
-                <Column :exportable="false">
-                    <template #body="slotProps">
-                        <Button icon="pi pi-pencil" outlined rounded class="mr-2" @click="editCompra(slotProps.data)" />
-                        <Button icon="pi pi-trash" outlined rounded severity="danger" @click="confirmDeleteCompra(slotProps.data)" />
-                    </template>
-                </Column>
+
             </DataTable>
         </div>
 

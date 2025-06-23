@@ -15,7 +15,7 @@ const proveedorSeleccionado = ref(null);
 const clienteSeleccionado = ref(null);
 const productoSeleccionado = ref(null);
 const productosAgregados = ref([]);
-
+const dt = ref()
 const tipoFacturaSeleccionado = ref(null);
 const facturaDialog = ref(false);
 const deleteFacturaDialog = ref(false);

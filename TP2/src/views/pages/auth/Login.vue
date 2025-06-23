@@ -3,7 +3,8 @@ import {computed, ref} from 'vue'
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue'
 import { login } from '@/service/auth.service' // Importamos tu función login
 import { useRouter } from 'vue-router'
-import {useToast} from "primevue/usetoast"; // Si usás Vue Router para navegar
+import {useToast} from "primevue/usetoast";
+
 const toast = useToast();
 const email = ref('')
 const password = ref('')
@@ -24,15 +25,14 @@ async function handleLogin() {
 
         await router.push('/dashboard')
     } catch (error) {
-        console.error('Error al iniciar sesión:', error)
+
         toast.add({
             severity: 'error',
             summary: 'Error',
             detail: 'Usuario o contraseña incorrectos',
             life: 3000
-        });
-
-    } finally {
+        })
+    }finally {
         isLoading.value = false
     }
 }
