@@ -2,6 +2,8 @@ package com.trabajo_practico.gestion_comercial.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "facturas")
@@ -12,7 +14,7 @@ public class Factura {
     private Long id;
 
     private String numero;
-    private String cliente;
+
 
     @Column(name = "total", nullable = false)
     private double total;
@@ -33,9 +35,16 @@ public class Factura {
     @Column(name = "forma_pago", nullable = false)
     private String formaPago;
 
+    // relación con compras
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Compra> compras = new ArrayList<>();
+
+    //  relación con ventas
+    @OneToMany(mappedBy = "factura", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Venta> ventas = new ArrayList<>();
+
     public Factura() {}
 
-    // Método para setear automáticamente la fecha al persistir
     @PrePersist
     public void prePersist() {
         if (fecha == null) {
@@ -61,13 +70,7 @@ public class Factura {
         this.numero = numero;
     }
 
-    public String getCliente() {
-        return cliente;
-    }
 
-    public void setCliente(String cliente) {
-        this.cliente = cliente;
-    }
 
     public double getTotal() {
         return total;
@@ -115,5 +118,21 @@ public class Factura {
 
     public void setFormaPago(String formaPago) {
         this.formaPago = formaPago;
+    }
+
+    public List<Compra> getCompras() {
+        return compras;
+    }
+
+    public void setCompras(List<Compra> compras) {
+        this.compras = compras;
+    }
+
+    public List<Venta> getVentas() {
+        return ventas;
+    }
+
+    public void setVentas(List<Venta> ventas) {
+        this.ventas = ventas;
     }
 }

@@ -36,32 +36,13 @@ public class FacturaController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<FacturaDTO>> crearFactura(@RequestBody CreateUpdateFacturaDTO factura) {
-        var nuevaFactura = facturaService.crearFactura(factura);
-
-        if (nuevaFactura == null) {
-            String tipo = factura.getTipoFactura();
-            Long idClienteProv = factura.getIdClienteProv();
-            boolean existe;
-
-            if ("COMPRA".equalsIgnoreCase(tipo)) {
-                existe = proveedorRepository.existsById(idClienteProv);
-                if (!existe) {
-                    throw new ResourceNotFoundException("Proveedor con ID " + idClienteProv + " no encontrado");
-                }
-            } else if ("VENTA".equalsIgnoreCase(tipo)) {
-                existe = clienteRepository.existsById(idClienteProv);
-                if (!existe) {
-                    throw new ResourceNotFoundException("Cliente con ID " + idClienteProv + " no encontrado");
-                }
-            } else {
-                throw new IllegalArgumentException("Tipo de factura inválido: " + tipo);
-            }
-        }
+        FacturaDTO nuevaFactura = facturaService.crearFactura(factura);
 
         return ResponseEntity.ok(
-                new ApiResponse<>("Factura creada exitosamente", HttpStatus.OK.value(), nuevaFactura)
+                new ApiResponse<>("Factura y compra/venta creada exitosamente", HttpStatus.OK.value(), nuevaFactura)
         );
     }
+
     @PutMapping("/{id}/anular")
     public ResponseEntity<ApiResponse<String>> anularFactura(@PathVariable Long id) {
         boolean anulada = facturaService.anularFactura(id);

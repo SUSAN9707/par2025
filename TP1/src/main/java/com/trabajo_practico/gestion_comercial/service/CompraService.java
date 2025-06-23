@@ -44,7 +44,7 @@ public class CompraService {
         Factura factura = new Factura();
 
         if (facturaDto != null) {
-            factura.setCliente(facturaDto.getCliente());
+
             factura.setTotal(facturaDto.getTotal() != null
                     ? facturaDto.getTotal()
                     : compraDto.getPrecioUnitario() * compraDto.getCantidad());
@@ -52,7 +52,6 @@ public class CompraService {
             factura.setTipoFactura(facturaDto.getTipoFactura() != null ? facturaDto.getTipoFactura() : "COMPRA");
             factura.setFormaPago(facturaDto.getFormaPago() != null ? facturaDto.getFormaPago() : "EFECTIVO");
         } else {
-            factura.setCliente("Cliente desconocido");
             factura.setTotal(compraDto.getPrecioUnitario() * compraDto.getCantidad());
             factura.setIdClienteProv(0L);
             factura.setTipoFactura("COMPRA");

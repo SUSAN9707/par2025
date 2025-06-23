@@ -9,7 +9,6 @@ public class FacturaDTO {
 
     private Long id;
     private String numero;
-    private String cliente;
     private double total;
     private long idClienteProv;
     private String tipoFactura;
@@ -20,7 +19,6 @@ public class FacturaDTO {
     public FacturaDTO(Factura factura) {
         this.id = factura.getId();
         this.numero = factura.getNumero();
-        this.cliente = factura.getCliente();
         this.total = factura.getTotal();
         this.idClienteProv = factura.getIdClienteProv();
         this.tipoFactura = factura.getTipoFactura();
@@ -37,8 +35,7 @@ public class FacturaDTO {
     public String getNumero() { return numero; }
     public void setNumero(String numero) { this.numero = numero; }
 
-    public String getCliente() { return cliente; }
-    public void setCliente(String cliente) { this.cliente = cliente; }
+
 
     public double getTotal() { return total; }
     public void setTotal(double total) { this.total = total; }

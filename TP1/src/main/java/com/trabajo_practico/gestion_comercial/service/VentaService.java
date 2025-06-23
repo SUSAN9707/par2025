@@ -50,7 +50,7 @@ public class VentaService {
         Factura factura = new Factura();
 
         if (facturaDto != null) {
-            factura.setCliente(facturaDto.getCliente());
+
             factura.setNumero(facturaDto.getNumero());
             factura.setTotal(facturaDto.getTotal() != null
                     ? facturaDto.getTotal()
@@ -59,7 +59,6 @@ public class VentaService {
             factura.setTipoFactura(facturaDto.getTipoFactura() != null ? facturaDto.getTipoFactura() : "VENTA");
             factura.setFormaPago(facturaDto.getFormaPago() != null ? facturaDto.getFormaPago() : "EFECTIVO");
         } else {
-            factura.setCliente("Cliente desconocido");
             factura.setNumero("FAC-" + System.currentTimeMillis());
             factura.setTotal(ventaDto.getPrecioUnitario() * ventaDto.getCantidad());
             factura.setIdClienteProv(0L);

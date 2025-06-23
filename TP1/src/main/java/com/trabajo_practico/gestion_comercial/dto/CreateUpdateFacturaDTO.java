@@ -1,25 +1,46 @@
 package com.trabajo_practico.gestion_comercial.dto;
 
-
 import java.util.List;
 
 public class CreateUpdateFacturaDTO {
 
     private String numero;
-    private String cliente;
-    private double total;
 
-    public List<Long> getReferencias() {
-        return referencias;
+    private Double total; // opcional, se puede calcular igual
+    private Long idClienteProv;
+    private String tipoFactura;
+    private String formaPago;
+
+    // campos para carga de múltiples compras o ventas
+    private List<CreateUpdateCompraDTO> compras;
+    private List<CreateUpdateVentaDTO> ventas;
+
+    // Getters y Setters
+
+    public String getNumero() {
+        return numero;
     }
 
-    public void setReferencias(List<Long> referencias) {
-        this.referencias = referencias;
+    public void setNumero(String numero) {
+        this.numero = numero;
     }
 
-    private List<Long> referencias;
-    public long getIdClienteProv() {
+
+
+    public Double getTotal() {
+        return total;
+    }
+
+    public void setTotal(Double total) {
+        this.total = total;
+    }
+
+    public Long getIdClienteProv() {
         return idClienteProv;
+    }
+
+    public void setIdClienteProv(Long idClienteProv) {
+        this.idClienteProv = idClienteProv;
     }
 
     public String getTipoFactura() {
@@ -30,35 +51,40 @@ public class CreateUpdateFacturaDTO {
         this.tipoFactura = tipoFactura;
     }
 
-    private String tipoFactura;
-    public void setIdClienteProv(long idClienteProv) {
-        this.idClienteProv = idClienteProv;
+    public String getFormaPago() {
+        return formaPago;
     }
 
-    private long idClienteProv;
-
-
-    public String getNumero() {
-        return numero;
+    public void setFormaPago(String formaPago) {
+        this.formaPago = formaPago;
     }
 
-    public void setNumero(String numero) {
-        this.numero = numero;
+    public List<CreateUpdateCompraDTO> getCompras() {
+        return compras;
     }
 
-    public String getCliente() {
-        return cliente;
+    public void setCompras(List<CreateUpdateCompraDTO> compras) {
+        this.compras = compras;
     }
 
-    public void setCliente(String cliente) {
-        this.cliente = cliente;
+    public List<CreateUpdateVentaDTO> getVentas() {
+        return ventas;
     }
 
-    public double getTotal() {
-        return total;
+    public void setVentas(List<CreateUpdateVentaDTO> ventas) {
+        this.ventas = ventas;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    @Override
+    public String toString() {
+        return "CreateUpdateFacturaDTO{" +
+                "numero='" + numero + '\'' +
+                ", total=" + total +
+                ", idClienteProv=" + idClienteProv +
+                ", tipoFactura='" + tipoFactura + '\'' +
+                ", formaPago='" + formaPago + '\'' +
+                ", compras=" + compras +
+                ", ventas=" + ventas +
+                '}';
     }
 }
