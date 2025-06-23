@@ -4,10 +4,7 @@ import com.trabajo_practico.gestion_comercial.dto.*;
 import com.trabajo_practico.gestion_comercial.model.Producto;
 import com.trabajo_practico.gestion_comercial.model.Venta;
 import com.trabajo_practico.gestion_comercial.model.Compra;
-import com.trabajo_practico.gestion_comercial.repository.ClienteRepository;
-import com.trabajo_practico.gestion_comercial.repository.ProductoRepository;
-import com.trabajo_practico.gestion_comercial.repository.VentaRepository;
-import com.trabajo_practico.gestion_comercial.repository.CompraRepository;
+import com.trabajo_practico.gestion_comercial.repository.*;
 import com.trabajo_practico.gestion_comercial.service.ReporteServiceG;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +25,8 @@ public class ReporteServiceImpl implements ReporteServiceG {
     private final ProductoRepository productoRepository;
 
     private final ClienteRepository clienteRepository;
-    private final ProductoRepository proveedorRepository;
-    public ReporteServiceImpl(VentaRepository ventaRepository, CompraRepository compraRepository, ProductoRepository productoRepository, ClienteRepository clienteRepository, ProductoRepository proveedorRepository) {
+    private final ProveedorRepository proveedorRepository;
+    public ReporteServiceImpl(VentaRepository ventaRepository, CompraRepository compraRepository,ProveedorRepository proveedorRepository, ProductoRepository productoRepository, ClienteRepository clienteRepository) {
         this.ventaRepository = ventaRepository;
         this.compraRepository = compraRepository;
         this.productoRepository = productoRepository;
@@ -179,7 +176,6 @@ public class ReporteServiceImpl implements ReporteServiceG {
                     String nombre = (proveedor != null)
                             ? proveedor.getNombre()
                             : "Proveedor desconocido";
-
                     return new TopEntidadDTO(nombre, id, total);
                 })
                 .sorted(Comparator.comparing(TopEntidadDTO::getTotal).reversed())
